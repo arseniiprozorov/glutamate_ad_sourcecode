@@ -1,6 +1,8 @@
 library(readxl)   
 library(janitor)  
-library(jmv)      
+library(jmv)
+library(effectsize)
+      
 
 ## Glutamate Relates to Structural and Functional markers of Disease Severity in early Alzheimer’s disease  ######
 ## Arsenii Prozorov 
@@ -9,7 +11,7 @@ library(jmv)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
-import_data_arsenii_20250609 <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20250923/import_data_arsenii_20250609.xlsx")
+import_data_arsenii_20250609 <- read_excel("C:/Users/okkam/Desktop/labo/article 1/supplementary/import_data_arsenii_20250609.xlsx")
 MRS_full <- import_data_arsenii_20250609
 
 # Clean the column names
@@ -186,19 +188,20 @@ TukeyHSD(anova_assoc)
 ########################### ANOVA   ##########################
 
 jmv::descriptives(data = MRS_full,vars = vars(m_m_precuneus, m_m_acc), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE)
-
 #  ACC
 anova_acc <- aov(m_m_acc ~ diagnostic_nick, data = MRS_full)
 summary(anova_acc)
 TukeyHSD(anova_acc)
+eta_squared(anova_acc)          
 # For Precuneus
 anova_precuneus <- aov(m_m_precuneus ~ diagnostic_nick, data = MRS_full)
 summary(anova_precuneus)
 TukeyHSD(anova_precuneus)
+eta_squared(anova_precuneus)          
 
-
-
-
+## t test 
+jmv::descriptives(data = MRS_full, vars = vars(m_m_precuneus,m_m_acc),splitBy = "sex", sd = TRUE, hist = TRUE)
+t.test(m_m_precuneus ~ sex, data = MRS_full, var.equal = TRUE)
 ######################### Polynomial analyses  #####################################
 names(MRS_full)
 #### structure and memory ######
