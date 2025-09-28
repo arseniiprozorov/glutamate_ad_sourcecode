@@ -48,4 +48,33 @@ leveneTest(model.frame(anova_precuneus)[[1]] ~ model.frame(anova_precuneus)[[2]]
 
 
 
+### Regression postulats ###############
+models <- c(
+  "model_lin_acc_hipp","model_lin_acc_hipp_act","model_lin_acc_memor","model_lin_acc_sup_act","model_lin_acc_thick",
+  "model_lin_prec_hipp","model_lin_prec_hipp_act","model_lin_prec_memor","model_lin_prec_sup_act","model_lin_prec_thick",
+  "model_mod_hipp_acc","model_mod_hipp_prec","model_mod_thick_acc","model_mod_thick_prec",
+  "model_quad_acc_hipp","model_quad_acc_hipp_act","model_quad_acc_memor","model_quad_acc_sup_act","model_quad_acc_thick",
+  "model_quad_prec_hipp","model_quad_prec_hipp_act","model_quad_prec_memor","model_quad_prec_sup_act","model_quad_prec_thick"
+)
+
+
+for (m in models) {{
+    mod <- get(m, inherits = FALSE)                         
+    mod <- tryCatch(update(mod, na.action = na.exclude),    
+                    error = function(e) mod)
+    res <- residuals(mod)                                   
+    print(shapiro.test(res))                                
+    suppressWarnings(print(ks.test(scale(res), "pnorm")))   
+    
+    par(mfrow = c(1,2))
+    plot(fitted(mod), res, main = paste("Residuals vs Fitted:", m),
+         xlab = "Fitted values", ylab = "Residuals"); abline(h = 0, lty = 2)
+    qqnorm(res, main = paste("Q–Q Plot:", m)); qqline(res)
+    par(mfrow = c(1,1))
+    
+  }, error = function(e) {
+    cat("Could not process", m, "→", e$message, "\n")
+  }
+  flush.console()
+}
 
