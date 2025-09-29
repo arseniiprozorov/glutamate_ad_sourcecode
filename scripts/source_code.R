@@ -2,7 +2,8 @@ library(readxl)
 library(janitor)  
 library(jmv)
 library(effectsize)
-      
+library(interactions)
+
 
 ## Glutamate Relates to Structural and Functional markers of Disease Severity in early Alzheimer’s disease  ######
 ## Arsenii Prozorov 
@@ -356,4 +357,6 @@ summary(model_mod_thick_acc)
 model_mod_thick_prec <- lm(memoria_libre_correcte ~ m_m_precuneus_c + cortical_thickness_adsignature_dickson_c:m_m_precuneus_c, data = MRS_SM_Prec)
 summary(model_mod_thick_prec)
 
+# Probing the interaction with simple slopes
+sim_slopes(model_mod_hipp_prec, pred = m_m_precuneus_c, modx = hip_l_nor_icv_c, johnson_neyman = TRUE, confint = TRUE)
 
