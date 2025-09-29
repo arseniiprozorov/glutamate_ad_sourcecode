@@ -156,19 +156,19 @@ df_prec <- df_acc
 
 # 5) Panels (ALL quadratic; keep reversed x as you had)
 p1 <- base_scatter(df_acc,  "hip_l_nor_icv_z", "m_m_acc",
-                   "Hippocampal volume (Z score)", "ACC Glu (mM)",
+                   "Left hippocampal volume (z)", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p2 <- base_scatter(df_prec, "hip_l_nor_icv_z", "m_m_precuneus",
-                   "Hippocampal volume (Z score)", "Precuneus Glu (mM)",
+                   "Left hippocampal volume (z)", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 p3 <- base_scatter(df_acc,  "ct_ad_z", "m_m_acc",
-                   "Cortical thickness (Z score)", "ACC Glu (mM)",
+                   "Cortical thickness AD (z)", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
-                   "Cortical thickness (Z score)", "Precuneus Glu (mM)",
+                   "Cortical thickness AD (z)", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 # 6) Arrange 2x2, ONE legend
@@ -240,13 +240,13 @@ df_act <- MRS_full %>%
 # 5) Two panels (ACC = linear; Precuneus = quadratic)
 p_acc  <- base_scatter(
   df_act, "act_parietal_z", "m_m_acc",
-  "Superior parietal activation (Z score)", "ACC Glu (mM)",
+  "Left superior parietal activation (z)", "ACC Glu (mM)",
   fit_formula = y ~ x                    # linear
 )
 
 p_prec <- base_scatter(
   df_act, "act_parietal_z", "m_m_precuneus",
-  "Superior parietal activation (Z score)", "Precuneus Glu (mM)",
+  "Left superior parietal activation (z)", "Precuneus Glu (mM)",
   fit_formula = y ~ x + I(x^2)           # quadratic
 )
 
@@ -278,41 +278,56 @@ dev.off()
 
 #### Moderation #####
 
-DATA_REG0 <- MRS_full[, c(
-  "m_m_precuneus",          
-  "memoria_libre_correcte", 
-  "hip_l_nor_icv_c"         
-)] |> tidyr::drop_na()
 
-# ---- 2) Transform: G in Z; H centered (already) ----
-DATA_REG0$mmprec_z <- as.numeric(scale(DATA_REG0$m_m_precuneus))  
-DATA_REG0$hip_vec  <- as.numeric(DATA_REG0$hip_l_nor_icv_c)       
+# -----------------------------
+# 1) Data prep (from your MRS_SM_Prec)
+# -----------------------------
+DATA_REG0 <- MRS_SM_Prec[, c(
+  "m_m_precuneus_c",         # centered Glu (we'll z-score this)
+  "memoria_libre_correcte",  # outcome
+  "hip_l_nor_icv_c"          # centered hippocampal volume (moderator)
+)] |>
+  tidyr::drop_na() |>
+  dplyr::mutate(
+    m_m_precuneus_c        = as.numeric(m_m_precuneus_c),
+    hip_l_nor_icv_c        = as.numeric(hip_l_nor_icv_c),
+    memoria_libre_correcte = as.numeric(memoria_libre_correcte),
+    # z-score the (centered) Glu — same z as from raw
+    mmprec_z               = as.numeric(scale(m_m_precuneus_c))
+  )
 
-# ---- 3) Linear moderation model: M ~ Gz + H:Gz ----
-model_mod_precuneus_z <- lm(
-  memoria_libre_correcte ~ mmprec_z  + hip_vec:mmprec_z,
+# -----------------------------
+# 2) Fit moderation model in z-units
+# -----------------------------
+model_mod_hipp_prec_z <- lm(
+  memoria_libre_correcte ~ mmprec_z + hip_l_nor_icv_c:mmprec_z,
   data = DATA_REG0
 )
-print(summary(model_mod_precuneus_z))
+print(summary(model_mod_hipp_prec_z))
 
-# ---- 4) Prediction grid over G (Z) with H at mean ±1 SD and mean ----
-rng_z  <- range(DATA_REG0$mmprec_z, na.rm = TRUE)
-grid_z <- seq(rng_z[1], rng_z[2], length.out = 200)
+# -----------------------------
+# 3) Prediction grid over z(Glu) with H at mean, ±1 SD
+# -----------------------------
+z_rng  <- range(DATA_REG0$mmprec_z, na.rm = TRUE)
+z_grid <- seq(z_rng[1], z_rng[2], length.out = 200)
 
-H_mean <- mean(DATA_REG0$hip_vec, na.rm = TRUE)  # ~0 by centering
-H_sd   <- sd(DATA_REG0$hip_vec,   na.rm = TRUE)
+H_mean <- mean(DATA_REG0$hip_l_nor_icv_c, na.rm = TRUE)  # ~0 by centering
+H_sd   <- sd(DATA_REG0$hip_l_nor_icv_c,   na.rm = TRUE)
 
 mk_curve <- function(label, Hval) {
-  pr <- predict(model_mod_precuneus_z,
-                newdata = data.frame(mmprec_z = grid_z, hip_vec = Hval),
-                se.fit = TRUE)
+  nd <- data.frame(
+    mmprec_z        = as.numeric(z_grid),
+    hip_l_nor_icv_c = rep(as.numeric(Hval), length(z_grid)),
+    stringsAsFactors = FALSE
+  )
+  pr <- predict(model_mod_hipp_prec_z, newdata = nd, se.fit = TRUE)
   crit <- qnorm(0.975)
   data.frame(
     H_level = label,
-    G_z     = grid_z,
-    M_hat   = pr$fit,
-    lo      = pr$fit - crit*pr$se.fit,
-    hi      = pr$fit + crit*pr$se.fit
+    Xz      = z_grid,
+    Yhat    = pr$fit,
+    lo      = pr$fit - crit * pr$se.fit,
+    hi      = pr$fit + crit * pr$se.fit
   )
 }
 
@@ -321,69 +336,98 @@ df_plot <- dplyr::bind_rows(
   mk_curve("Mean (0 SD)",  H_mean),
   mk_curve("Low (−1 SD)",  H_mean - H_sd)
 )
-df_plot$H_level <- factor(
-  df_plot$H_level,
-  levels = c("High (+1 SD)", "Mean (0 SD)", "Low (−1 SD)")
-)
 
-# ---- 5) Y axis ticks at whole numbers ----
+# -----------------------------
+# 4) Bin raw points into Low/Mean/High by hippocampal volume (±1 SD)
+# -----------------------------
+DATA_REG0 <- DATA_REG0 |>
+  mutate(
+    Group = dplyr::case_when(
+      hip_l_nor_icv_c <= (H_mean - H_sd) ~ "Low (−1 SD)",
+      hip_l_nor_icv_c >= (H_mean + H_sd) ~ "High (+1 SD)",
+      TRUE                                ~ "Mean (0 SD)"
+    )
+  )
+
+# Harmonize factor levels for single legend
+lvl <- c("High (+1 SD)", "Mean (0 SD)", "Low (−1 SD)")
+DATA_REG0$Group <- factor(DATA_REG0$Group, levels = lvl)
+df_plot$Group   <- factor(df_plot$H_level, levels = lvl)
+
+# -----------------------------
+# 5) Axis ticks (Y)
+# -----------------------------
 y_min    <- floor(min(DATA_REG0$memoria_libre_correcte, na.rm = TRUE))
 y_max    <- ceiling(max(DATA_REG0$memoria_libre_correcte, na.rm = TRUE))
 y_breaks <- seq(y_min, y_max, by = 1)
 
-# ---- 6) Plot ----
+# -----------------------------
+# Plot
+# -----------------------------
 p_mod <- ggplot() +
-  # raw points
   geom_point(
     data = DATA_REG0,
-    aes(x = mmprec_z, y = memoria_libre_correcte),
-    color = "grey30", size = 1.6, alpha = 0.8, shape = 16
+    aes(x = mmprec_z, y = memoria_libre_correcte, shape = Group),
+    color = "grey30", size = 1.9, alpha = 0.85
   ) +
-  # ribbons (95% CI) and lines
   geom_ribbon(
     data = df_plot,
-    aes(x = G_z, ymin = lo, ymax = hi, fill = H_level),
+    aes(x = Xz, ymin = lo, ymax = hi, fill = Group),
     alpha = 0.12, linewidth = 0
   ) +
   geom_line(
     data = df_plot,
-    aes(x = G_z, y = M_hat, linetype = H_level, linewidth = H_level),
+    aes(x = Xz, y = Yhat, linetype = Group, linewidth = Group),
     colour = "black"
   ) +
-  # reverse x to match your convention
   scale_x_reverse() +
-  scale_y_continuous(breaks = y_breaks, limits = c(y_min, y_max), expand = c(0.02, 0.02)) +
-  # line styles: High dashed, Mean solid, Low dotted
-  scale_linetype_manual(values = c(
-    "High (+1 SD)" = "dashed",  
-    "Mean (0 SD)"  = "solid",
-    "Low (−1 SD)"  = "dotted"
-  )) +
-  scale_linewidth_manual(values = c(
-    "High (+1 SD)" = 0.9,
-    "Mean (0 SD)"  = 1.0,
-    "Low (−1 SD)"  = 0.9
-  )) +
-  # neutral greys for ribbons
-  scale_fill_manual(values = c(
-    "High (+1 SD)" = "grey60",
-    "Mean (0 SD)"  = "grey75",
-    "Low (−1 SD)"  = "grey88"
-  )) +
-  labs(x = "Precuneus Glu (Z score)", y = "Free recall (correct)") +
+  scale_y_continuous(breaks = y_breaks, limits = c(y_min, y_max),
+                     expand = c(0.02, 0.02)) +
+  
+  # two legends: (1) lines+ribbons, (2) points/shapes
+  scale_linetype_manual(
+    name = "Left hippocampal volume",
+    values = c("High (+1 SD)"="dashed","Mean (0 SD)"="dotted","Low (−1 SD)"="solid"),
+    breaks = lvl
+  ) +
+  scale_linewidth_manual(
+    name = "Left hippocampal volume",
+    values = c("High (+1 SD)"=0.9,"Mean (0 SD)"=1.0,"Low (−1 SD)"=0.9),
+    breaks = lvl
+  ) +
+  scale_fill_manual(
+    name = "Left hippocampal volume",
+    values = c("High (+1 SD)"="grey60","Mean (0 SD)"="grey75","Low (−1 SD)"="grey88"),
+    breaks = lvl
+  ) +
+  scale_shape_manual(
+    name = "",
+    values = c("High (+1 SD)"=16,"Mean (0 SD)"=17,"Low (−1 SD)"=15),
+    breaks = lvl
+  ) +
+  
+  labs(x = "Precuneus Glu (z)", y = "Free recall (correct)") +
   theme_classic(base_size = 12) +
   theme(
-    plot.margin     = margin(8, 8, 8, 8),
-    legend.position = "right",
-    legend.title    = element_blank(),
-    legend.text     = element_text(size = 11)
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    legend.box = "vertical",
+    plot.margin = margin(8, 8, 8, 8)
+  ) +
+  guides(
+    shape = guide_legend(override.aes = list(size = 3, alpha = 1, colour = "grey30")),
+    linewidth = "none"
   )
 
-# ---- 7) Export ----
+# -----------------------------
+# 7) Export (1200-DPI TIFF)
+# -----------------------------
 out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
-ragg::agg_tiff(file.path(out_dir, "fig_mod_precuneus_Z_reversed_high_dashed_1200dpi.tiff"),
-               width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw")
+ragg::agg_tiff(
+  filename = file.path(out_dir, "fig_mod_precuneus_Z_reversed_shapes_lines_1200dpi.tiff"),
+  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
+)
 print(p_mod)
 dev.off()
