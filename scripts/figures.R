@@ -156,19 +156,19 @@ df_prec <- df_acc
 
 # 5) Panels (ALL quadratic; keep reversed x as you had)
 p1 <- base_scatter(df_acc,  "hip_l_nor_icv_z", "m_m_acc",
-                   "Left hippocampal volume (z)", "ACC Glu (mM)",
+                   "Hippocampal volume (score z)", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p2 <- base_scatter(df_prec, "hip_l_nor_icv_z", "m_m_precuneus",
-                   "Left hippocampal volume (z)", "Precuneus Glu (mM)",
+                   "Hippocampal volume (score z)", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 p3 <- base_scatter(df_acc,  "ct_ad_z", "m_m_acc",
-                   "Cortical thickness AD (z)", "ACC Glu (mM)",
+                   "Cortical thickness AD (score z)", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
-                   "Cortical thickness AD (z)", "Precuneus Glu (mM)",
+                   "Cortical thickness AD (score z)", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 # 6) Arrange 2x2, ONE legend
@@ -240,13 +240,13 @@ df_act <- MRS_full %>%
 # 5) Two panels (ACC = linear; Precuneus = quadratic)
 p_acc  <- base_scatter(
   df_act, "act_parietal_z", "m_m_acc",
-  "Left superior parietal activation (z)", "ACC Glu (mM)",
+  "Superior parietal activation (score z)", "ACC Glu (mM)",
   fit_formula = y ~ x                    # linear
 )
 
 p_prec <- base_scatter(
   df_act, "act_parietal_z", "m_m_precuneus",
-  "Left superior parietal activation (z)", "Precuneus Glu (mM)",
+  "Superior parietal activation (score z)", "Precuneus Glu (mM)",
   fit_formula = y ~ x + I(x^2)           # quadratic
 )
 
@@ -277,7 +277,7 @@ dev.off()
 
 
 #### Moderation #####
-git s
+
 
 # -----------------------------
 # 1) Data prep (from your MRS_SM_Prec)
@@ -386,17 +386,17 @@ p_mod <- ggplot() +
   
   # two legends: (1) lines+ribbons, (2) points/shapes
   scale_linetype_manual(
-    name = "Left hippocampal volume",
+    name = "  ",
     values = c("High (+1 SD)"="dashed","Mean (0 SD)"="dotted","Low (−1 SD)"="solid"),
     breaks = lvl
   ) +
   scale_linewidth_manual(
-    name = "Left hippocampal volume",
+    name = "  ",
     values = c("High (+1 SD)"=0.9,"Mean (0 SD)"=1.0,"Low (−1 SD)"=0.9),
     breaks = lvl
   ) +
   scale_fill_manual(
-    name = "Left hippocampal volume",
+    name = "  ",
     values = c("High (+1 SD)"="grey60","Mean (0 SD)"="grey75","Low (−1 SD)"="grey88"),
     breaks = lvl
   ) +
@@ -406,7 +406,7 @@ p_mod <- ggplot() +
     breaks = lvl
   ) +
   
-  labs(x = "Precuneus Glu (z)", y = "Free recall (correct)") +
+  labs(x = "Precuneus Glu (score z)", y = "Memoria free word recall (correct)") +
   theme_classic(base_size = 12) +
   theme(
     legend.text = element_text(size = 11),
@@ -431,3 +431,22 @@ ragg::agg_tiff(
 )
 print(p_mod)
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
