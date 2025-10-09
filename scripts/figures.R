@@ -10,7 +10,7 @@ library(ragg)
 
 #### Bar plot #####
 
-# --- long format for ACC & Precuneus ---
+# long format for ACC and Precuneus
 long_data_mM <- MRS_full %>%
   dplyr::select(diagnostic_nick, m_m_acc, m_m_precuneus) %>%
   dplyr::rename(ACC = m_m_acc, Precuneus = m_m_precuneus) %>%
@@ -18,7 +18,7 @@ long_data_mM <- MRS_full %>%
                       names_to = "Region",
                       values_to = "Value")
 
-# ----- summarise both regions -----
+#  summarise both regions 
 sum_dat <- long_data_mM %>%
   filter(Region %in% c("ACC","Precuneus")) %>%
   group_by(Region, diagnostic_nick) %>%
@@ -30,7 +30,7 @@ sum_dat <- long_data_mM %>%
   ) %>%
   mutate(xi = as.numeric(factor(diagnostic_nick, levels=c("HC","SCD+","MCI"))))
 
-# --- helper to build each plot ---
+#  helper 
 make_plot <- function(region_name, y_label, sig_xmin, sig_xmax, y_pos, star_label="*",
                       y_min = 13, y_max = 16) {
   
@@ -81,7 +81,7 @@ make_plot <- function(region_name, y_label, sig_xmin, sig_xmax, y_pos, star_labe
     )
 }
 
-# --- build panels  ---
+#  build panels  
 p_acc  <- make_plot("ACC","ACC Glu (mM)",
                     sig_xmin = c(1,1), sig_xmax = c(2,3),
                     y_pos = c(15.5, 15.7))
@@ -98,7 +98,7 @@ panel <- panel + plot_annotation(tag_levels = "A") &
   theme(plot.tag = element_text(face = "bold", size = 12),
         plot.tag.position = c(0.02, 0.98))
 
-# --- export to your project root figures folder ---
+#  export  
 out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
@@ -115,7 +115,7 @@ dev.off()
 ####### Structure and Memory #####################
 ##########  quadratic structure  ##########
 
-# 1) Z-scores + group factor
+# 1) Z-scores 
 MRS_full <- MRS_full %>%
   mutate(
     hip_l_nor_icv_z = as.numeric(scale(hip_l_nor_icv)),
@@ -148,13 +148,13 @@ base_scatter <- function(df, x, y, xlab, ylab, reverse_x = FALSE) {
   p
 }
 
-# 4) Data (ensure no NAs in any plotted var)
+# 4) Data 
 df_acc  <- MRS_full %>%
   select(m_m_acc, m_m_precuneus, hip_l_nor_icv_z, ct_ad_z, group) %>%
   tidyr::drop_na()
 df_prec <- df_acc
 
-# 5) Panels (ALL quadratic; keep reversed x as you had)
+# 5) Panels (ALL quadratic)
 p1 <- base_scatter(df_acc,  "hip_l_nor_icv_z", "m_m_acc",
                    "Hippocampal volume (score z)", "ACC Glu (mM)",
                    reverse_x = TRUE)
@@ -171,7 +171,7 @@ p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
                    "Cortical thickness AD (score z)", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
-# 6) Arrange 2x2, ONE legend
+# 6) Arrange 2x2
 combo <- (p1 | p2) / (p3 | p4) + plot_layout(guides = "collect") &
   theme(
     legend.position = "right",
@@ -201,18 +201,18 @@ dev.off()
 
 
 ##### Activaitons #############
-# 1) Z-scores + group factor (parietal activation) — unchanged
+# 1) Z-scores  (parietal activation)
 MRS_full <- MRS_full %>%
   mutate(
     act_parietal_z = as.numeric(scale(activation_parietal_sup_l)),
     group          = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
   )
 
-# 2) Common Y limits across metabolites — unchanged
+# 2) Common Y limits
 y_rng <- range(MRS_full$m_m_acc, MRS_full$m_m_precuneus, na.rm = TRUE)
 y_lim <- c(floor(y_rng[1] - 0.2), ceiling(y_rng[2] + 0.2))
 
-# 3) Helper: accepts a formula (default quadratic). Set se=FALSE to match your style.
+# 3) Helper: accepts a formula (default quadratic).
 base_scatter <- function(df, x, y, xlab, ylab,
                          fit_formula = y ~ x + I(x^2)) {
   ggplot(df, aes(x = .data[[x]], y = .data[[y]])) +
@@ -232,7 +232,7 @@ base_scatter <- function(df, x, y, xlab, ylab,
     )
 }
 
-# 4) Data (drop NAs on needed cols) — unchanged
+# 4) Data 
 df_act <- MRS_full %>%
   select(m_m_acc, m_m_precuneus, act_parietal_z, group) %>%
   tidyr::drop_na()
@@ -250,7 +250,7 @@ p_prec <- base_scatter(
   fit_formula = y ~ x + I(x^2)           # quadratic
 )
 
-# 6) Arrange side-by-side, one legend + A/B tags — unchanged
+# 6) Arrange side-by-side, one legend + A/B tags 
 combo <- (p_acc | p_prec) +
   plot_layout(guides = "collect") +
   plot_annotation(tag_levels = "A")
