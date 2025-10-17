@@ -156,19 +156,19 @@ df_prec <- df_acc
 
 # 5) Panels (ALL quadratic)
 p1 <- base_scatter(df_acc,  "hip_l_nor_icv_z", "m_m_acc",
-                   "Hippocampal volume (score z)", "ACC Glu (mM)",
+                   "Left Hippocampal volume", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p2 <- base_scatter(df_prec, "hip_l_nor_icv_z", "m_m_precuneus",
-                   "Hippocampal volume (score z)", "Precuneus Glu (mM)",
+                   "Left Hippocampal volume", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 p3 <- base_scatter(df_acc,  "ct_ad_z", "m_m_acc",
-                   "Cortical thickness AD (score z)", "ACC Glu (mM)",
+                   "Cortical thickness AD", "ACC Glu (mM)",
                    reverse_x = TRUE)
 
 p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
-                   "Cortical thickness AD (score z)", "Precuneus Glu (mM)",
+                   "Cortical thickness AD", "Precuneus Glu (mM)",
                    reverse_x = TRUE)
 
 # 6) Arrange 2x2
@@ -185,7 +185,7 @@ final_plot <- final_plot + plot_annotation(tag_levels = "A") &
   theme(legend.box.margin = margin(10, 8, 0, 0))
 
 # 7) Export to your project figures folder
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
+out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_glu_four_panels_quad_1200dpi.tiff"),
@@ -197,6 +197,164 @@ dev.off()
 
 
 
+############ Mean hipp #################
+
+# 1) Z-scores 
+MRS_full <- MRS_full %>%
+  mutate(
+    hipp_mean_z = as.numeric(scale(hipp_mean)),
+    ct_ad_z     = as.numeric(scale(cortical_thickness_adsignature_dickson)),
+    group       = factor(diagnostic_nick, levels = c("HC", "SCD+", "MCI"))
+  )
+
+# 2) Common Y limits
+y_rng <- range(MRS_full$m_m_acc, MRS_full$m_m_precuneus, na.rm = TRUE)
+y_lim <- c(floor(y_rng[1] - 0.2), ceiling(y_rng[2] + 0.2))
+
+# 3) Helper (quadratic by default)
+base_scatter <- function(df, x, y, xlab, ylab, reverse_x = FALSE) {
+  p <- ggplot(df, aes(x = .data[[x]], y = .data[[y]])) +
+    geom_point(aes(shape = group), color = "grey30", size = 1.4, alpha = 0.8) +
+    stat_smooth(method = "lm", formula = y ~ x + I(x^2),
+                se = FALSE, color = "black", linewidth = 0.8) +
+    scale_shape_manual(values = c(16,17,15), name = "Group",
+                       labels = c("HC","SCD+","MCI")) +
+    labs(x = xlab, y = ylab) +
+    coord_cartesian(ylim = y_lim, clip = "off") +
+    theme_classic(base_size = 12, base_family = "Arial") +
+    theme(
+      plot.margin = margin(8, 8, 8, 8),
+      legend.position = "right",
+      legend.title = element_text(size = 12),
+      legend.text  = element_text(size = 11)
+    )
+  if (reverse_x) p <- p + scale_x_reverse()
+  p
+}
+
+# 4) Data 
+df_acc  <- MRS_full %>%
+  select(m_m_acc, m_m_precuneus, hipp_mean_z, ct_ad_z, group) %>%
+  tidyr::drop_na()
+df_prec <- df_acc
+
+# 5) Panels (ALL quadratic)
+p1 <- base_scatter(df_acc,  "hipp_mean_z", "m_m_acc",
+                   "Mean hippocampal volume", "ACC Glu (mM)",
+                   reverse_x = TRUE)
+
+p2 <- base_scatter(df_prec, "hipp_mean_z", "m_m_precuneus",
+                   "Mean hippocampal volume", "Precuneus Glu (mM)",
+                   reverse_x = TRUE)
+
+p3 <- base_scatter(df_acc,  "ct_ad_z", "m_m_acc",
+                   "Cortical thickness AD", "ACC Glu (mM)",
+                   reverse_x = TRUE)
+
+p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
+                   "Cortical thickness AD", "Precuneus Glu (mM)",
+                   reverse_x = TRUE)
+
+# 6) Arrange 2x2
+combo <- (p1 | p2) / (p3 | p4) + plot_layout(guides = "collect") &
+  theme(
+    legend.position = "right",
+    plot.tag = element_text(face = "bold", size = 12),
+    plot.tag.position = c(0.02, 0.98)
+  )
+
+# optional thin right spacer, then apply tags
+final_plot <- (combo | plot_spacer()) + plot_layout(widths = c(1, 0.06))
+final_plot <- final_plot + plot_annotation(tag_levels = "A") &
+  theme(legend.box.margin = margin(10, 8, 0, 0))
+
+# 7) Export to your project figures folder
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+ragg::agg_tiff(file.path(out_dir, "fig_glu_four_panels_mean_hipp_1200dpi.tiff"),
+               width = 7.0, height = 6.0, units = "in",
+               res = 1200, compression = "lzw")
+print(final_plot)
+dev.off()
+
+
+
+
+### Memoria libre as DV
+# -----------------------------
+# Libraries
+# -----------------------------
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ragg)
+
+# -----------------------------
+# Data preparation
+# -----------------------------
+DF <- MRS_full %>%
+  transmute(
+    memoria_libre_correcte = as.numeric(memoria_libre_correcte),
+    mmprec_z               = as.numeric(scale(m_m_precuneus)),
+    group                  = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
+  ) %>%
+  drop_na()
+
+# -----------------------------
+# Quadratic fit
+# -----------------------------
+mod_quad <- lm(memoria_libre_correcte ~ mmprec_z + I(mmprec_z^2), data = DF)
+summary(mod_quad)
+
+# -----------------------------
+# Axis setup
+# -----------------------------
+y_min    <- floor(min(DF$memoria_libre_correcte, na.rm = TRUE))
+y_max    <- ceiling(max(DF$memoria_libre_correcte, na.rm = TRUE))
+y_breaks <- seq(y_min, y_max, by = 1)
+
+# -----------------------------
+# Plot (matches your figure)
+# -----------------------------
+p_quad_inverted <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
+  geom_point(aes(shape = group), color = "grey30", size = 1.8, alpha = 0.85) +
+  stat_smooth(
+    method = "lm", formula = y ~ x + I(x^2),
+    se = FALSE, color = "black", linewidth = 0.9
+  ) +
+  scale_shape_manual(values = c(16, 17, 15), name = "Group",
+                     labels = c("HC", "SCD+", "MCI")) +
+  scale_x_reverse() +
+  scale_y_continuous(
+    breaks = y_breaks,
+    limits = c(y_min, y_max),
+    expand = c(0.02, 0.02)
+  ) +
+  labs(
+    x = "Precuneus Glu (score z)",
+    y = "Memoria free word recall (correct)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 12),
+    legend.text  = element_text(size = 11),
+    plot.margin  = margin(8, 8, 8, 8)
+  )
+
+# -----------------------------
+# Export (1200-DPI TIFF)
+# -----------------------------
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+ragg::agg_tiff(
+  filename = file.path(out_dir, "fig_memoria_vs_precuneusGluZ_quad_inverted_1200dpi.tiff"),
+  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
+)
+print(p_quad_inverted)
+dev.off()
 
 
 
@@ -262,7 +420,7 @@ combo <- combo & theme(
 )
 
 # 7) Export
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_glu_vs_actpar_ACClin_PRECquad_1200dpi.tiff"),
