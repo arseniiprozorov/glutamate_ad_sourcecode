@@ -605,6 +605,163 @@ dev.off()
 
 
 
+# -----------------------------
+# 1) Data prep
+# -----------------------------
+DATA_REG1 <- MRS_SM_Prec[, c(
+  "m_m_precuneus_c",             # predictor (centered Glu)
+  "face_name_rappel_differe_spectro",  # outcome
+  "hipp_mean_c"                  # moderator (centered hippocampal volume)
+)] |>
+  tidyr::drop_na() |>
+  dplyr::mutate(
+    m_m_precuneus_c              = as.numeric(m_m_precuneus_c),
+    hipp_mean_c                  = as.numeric(hipp_mean_c),
+    face_name_rappel_differe_spectro = as.numeric(face_name_rappel_differe_spectro),
+    mmprec_z                     = as.numeric(scale(m_m_precuneus_c))
+  )
+
+# -----------------------------
+# 2) Fit moderation model
+# -----------------------------
+model_mod_hipp_prec_mean <- lm(
+  face_name_rappel_differe_spectro ~ mmprec_z + hipp_mean_c:mmprec_z,
+  data = DATA_REG1
+)
+summary(model_mod_hipp_prec_mean)
+
+# -----------------------------
+# 3) Prediction grid over z(Glu)
+# -----------------------------
+z_rng  <- range(DATA_REG1$mmprec_z, na.rm = TRUE)
+z_grid <- seq(z_rng[1], z_rng[2], length.out = 200)
+
+H_mean <- mean(DATA_REG1$hipp_mean_c, na.rm = TRUE)
+H_sd   <- sd(DATA_REG1$hipp_mean_c,   na.rm = TRUE)
+
+mk_curve <- function(label, Hval) {
+  nd <- data.frame(
+    mmprec_z   = as.numeric(z_grid),
+    hipp_mean_c = rep(as.numeric(Hval), length(z_grid))
+  )
+  pr <- predict(model_mod_hipp_prec_mean, newdata = nd, se.fit = TRUE)
+  crit <- qnorm(0.975)
+  data.frame(
+    H_level = label,
+    Xz      = z_grid,
+    Yhat    = pr$fit,
+    lo      = pr$fit - crit * pr$se.fit,
+    hi      = pr$fit + crit * pr$se.fit
+  )
+}
+
+df_plot <- dplyr::bind_rows(
+  mk_curve("High hippocampal volume (+1 SD)", H_mean + H_sd),
+  mk_curve("Mean hippocampal volume (0 SD)",  H_mean),
+  mk_curve("Low hippocampal volume (−1 SD)",  H_mean - H_sd)
+)
+
+# -----------------------------
+# 4) Bin raw points into Low/Mean/High
+# -----------------------------
+DATA_REG1 <- DATA_REG1 |>
+  mutate(
+    Group = dplyr::case_when(
+      hipp_mean_c <= (H_mean - H_sd) ~ "Low hippocampal volume (−1 SD)",
+      hipp_mean_c >= (H_mean + H_sd) ~ "High hippocampal volume (+1 SD)",
+      TRUE                           ~ "Mean hippocampal volume (0 SD)"
+    )
+  )
+
+lvl <- c("High hippocampal volume (+1 SD)",
+         "Mean hippocampal volume (0 SD)",
+         "Low hippocampal volume (−1 SD)")
+DATA_REG1$Group <- factor(DATA_REG1$Group, levels = lvl)
+df_plot$Group   <- factor(df_plot$H_level, levels = lvl)
+
+# -----------------------------
+# 5) Axis ticks (Y)
+# -----------------------------
+y_min    <- floor(min(DATA_REG1$face_name_rappel_differe_spectro, na.rm = TRUE))
+y_max    <- ceiling(max(DATA_REG1$face_name_rappel_differe_spectro, na.rm = TRUE))
+y_breaks <- seq(y_min, y_max, by = 1)
+
+# -----------------------------
+# Plot
+# -----------------------------
+p_mod2 <- ggplot() +
+  geom_point(
+    data = DATA_REG1,
+    aes(x = mmprec_z, y = face_name_rappel_differe_spectro, shape = Group),
+    color = "grey30", size = 1.9, alpha = 0.85
+  ) +
+  geom_ribbon(
+    data = df_plot,
+    aes(x = Xz, ymin = lo, ymax = hi, fill = Group),
+    alpha = 0.12, linewidth = 0
+  ) +
+  geom_line(
+    data = df_plot,
+    aes(x = Xz, y = Yhat, linetype = Group, linewidth = Group),
+    colour = "black"
+  ) +
+  scale_x_reverse() +
+  scale_y_continuous(breaks = y_breaks, limits = c(y_min, y_max),
+                     expand = c(0.02, 0.02)) +
+  scale_linetype_manual(
+    name = " ",
+    values = c("High hippocampal volume (+1 SD)"="dashed",
+               "Mean hippocampal volume (0 SD)"="dotted",
+               "Low hippocampal volume (−1 SD)"="solid"),
+    breaks = lvl
+  ) +
+  scale_linewidth_manual(
+    name = " ",
+    values = c("High hippocampal volume (+1 SD)"=0.9,
+               "Mean hippocampal volume (0 SD)"=1.0,
+               "Low hippocampal volume (−1 SD)"=0.9),
+    breaks = lvl
+  ) +
+  scale_fill_manual(
+    name = " ",
+    values = c("High hippocampal volume (+1 SD)"="grey60",
+               "Mean hippocampal volume (0 SD)"="grey75",
+               "Low hippocampal volume (−1 SD)"="grey88"),
+    breaks = lvl
+  ) +
+  scale_shape_manual(
+    name = "",
+    values = c("High hippocampal volume (+1 SD)"=16,
+               "Mean hippocampal volume (0 SD)"=17,
+               "Low hippocampal volume (−1 SD)"=15),
+    breaks = lvl
+  ) +
+  labs(
+    x = "Precuneus Glu (score z)",
+    y = "Face–Name delayed recall (correct)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    legend.box = "vertical",
+    plot.margin = margin(8, 8, 8, 8)
+  ) +
+  guides(
+    shape = guide_legend(override.aes = list(size = 3, alpha = 1, colour = "grey30")),
+    linewidth = "none"
+  )
+p_mod2 <- p_mod2 + theme(legend.position = "None")
+
+# -----------------------------
+# 6) Export
+# -----------------------------
+ragg::agg_tiff(
+  filename = file.path(out_dir, "fig_mod_precuneus_FACE_NAME_1200dpi_nolegend.tiff"),
+  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
+)
+print(p_mod2)
+dev.off()
 
 
 
