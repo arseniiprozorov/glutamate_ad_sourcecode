@@ -12,8 +12,8 @@ library(interactions)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
-import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017/import_data_arsenii_20250609_hippR.xlsx")
-MRS_full <- import_data_arsenii_20250609_hippR
+import_data_arsenii_20250609 <- read_excel("C:/Users/okkam/Desktop/labo/article 1/supplementary/import_data_arsenii_20250609.xlsx")
+MRS_full <- import_data_arsenii_20250609
 
 # Clean the column names
 MRS_full <- janitor::clean_names(MRS_full)
@@ -33,8 +33,6 @@ MRS_full$diagnostic_nick <- factor(MRS_full$diagnostic_nick, levels = c("HC", "S
 # Convertir sex en facteur
 MRS_full$sex <- as.factor(MRS_full$sex)
 
-# Creer Hipp mean
-MRS_full$hipp_mean <- (MRS_full$hip_l_nor_icv + MRS_full$righ_hip_vol)/2
 
 #Vérifier les varibales
 lapply(MRS_full,class)   
@@ -67,13 +65,12 @@ MRS_full$associative_memory_performance_sylvie <- winsorize_iqr(MRS_full$associa
 
 # Apply winsorization for 1.7 IQR variables
 MRS_full$hip_l_nor_icv <- winsorize_iqr(MRS_full$hip_l_nor_icv, 1.7)
-MRS_full$hipp_mean <- winsorize_iqr(MRS_full$hipp_mean, 1.7)
 MRS_full$cortical_thickness_adsignature_dickson <- winsorize_iqr(MRS_full$cortical_thickness_adsignature_dickson, 1.7)
 MRS_full$m_m_acc <- winsorize_iqr(MRS_full$m_m_acc, 1.7)
 MRS_full$m_m_precuneus <- winsorize_iqr(MRS_full$m_m_precuneus, 1.7)
 
 
-#jmv::descriptives(data = MRS_full, vars = vars(hipp_mean,hip_l_nor_icv),sd = TRUE,range = TRUE,skew = TRUE,kurt = TRUE)
+#jmv::descriptives(data = MRS_full, vars = vars(memoria_libre_correcte),sd = TRUE,range = TRUE,skew = TRUE,kurt = TRUE)
 
 
 #### Centrer et mettre au carré
@@ -101,9 +98,6 @@ MRS_full$face_name_rappel_differe_spectro_sq <- MRS_full$face_name_rappel_differ
 # hip_l_nor_icv
 MRS_full$hip_l_nor_icv_c  <- scale(MRS_full$hip_l_nor_icv, center = TRUE, scale = FALSE)
 MRS_full$hip_l_nor_icv_sq <- MRS_full$hip_l_nor_icv_c^2
-# hipp_mean
-MRS_full$hipp_mean_c  <- scale(MRS_full$hipp_mean, center = TRUE, scale = FALSE)
-MRS_full$hipp_mean_sq <- MRS_full$hipp_mean_c^2
 # cortical_thickness_adsignature_dickson
 MRS_full$cortical_thickness_adsignature_dickson_c  <- scale(MRS_full$cortical_thickness_adsignature_dickson, center = TRUE, scale = FALSE)
 MRS_full$cortical_thickness_adsignature_dickson_sq <- MRS_full$cortical_thickness_adsignature_dickson_c^2
@@ -131,20 +125,20 @@ MRS_full$activation_temporal_inf_r_sq <- MRS_full$activation_temporal_inf_r_c^2
 ##### Creer de banques de donees pour les analyses
 
 #### Structure and Memory ####
-MRS_S_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","hipp_mean","hipp_mean_c","hipp_mean_sq",
+MRS_S_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq",
                            "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                            "cortical_thickness_adsignature_dickson_c","cortical_thickness_adsignature_dickson_sq")] |> na.omit()
 
-MRS_S_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","m_m_precuneus_sq","hipp_mean","hipp_mean_c","hipp_mean_sq",
+MRS_S_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq",
                           "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                           "cortical_thickness_adsignature_dickson_c", "cortical_thickness_adsignature_dickson_sq")] |> na.omit()
 
-MRS_M_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","face_name_rappel_differe_spectro","face_name_rappel_differe_spectro_c", "face_name_rappel_differe_spectro_sq",
+MRS_M_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq",
                            "memoria_libre_correcte", "memoria_libre_correcte_c", "memoria_libre_correcte_sq",
                            "associative_memory_performance","associative_memory_performance_c",
                            "associative_memory_performance_sq")] |> na.omit()
 
-MRS_M_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","memoria_libre_correcte","face_name_rappel_differe_spectro","face_name_rappel_differe_spectro_c", "face_name_rappel_differe_spectro_sq",
+MRS_M_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","memoria_libre_correcte",
                           "memoria_libre_correcte_c", "memoria_libre_correcte_sq",
                           "associative_memory_performance","associative_memory_performance_c",
                           "associative_memory_performance_sq")] |> na.omit()
@@ -162,13 +156,13 @@ MRS_A_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq",
 
 # Moderation
 #### Structure and Memory ####
-MRS_SM_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","hipp_mean_c","face_name_rappel_differe_spectro",
+MRS_SM_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq",
                             "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                             "cortical_thickness_adsignature_dickson_c","cortical_thickness_adsignature_dickson_sq",
                             "memoria_libre_correcte", "memoria_libre_correcte_c", "memoria_libre_correcte_sq")] |> na.omit()
 
-MRS_SM_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","face_name_rappel_differe_spectro",
-                           "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson","hipp_mean_c",
+MRS_SM_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq",
+                           "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                            "cortical_thickness_adsignature_dickson_c", "cortical_thickness_adsignature_dickson_sq","memoria_libre_correcte",
                            "memoria_libre_correcte_c", "memoria_libre_correcte_sq")] |> na.omit()
 
@@ -274,25 +268,6 @@ model_quad_prec_hipp <- lm(m_m_precuneus ~ hip_l_nor_icv_c + hip_l_nor_icv_sq, d
 summary(model_quad_prec_hipp)
 AIC(model_quad_prec_hipp)
 
-# Model 1 m_m_ACC ~ hipp mean
-model_lin_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c, data = MRS_S_ACC)
-summary(model_lin_acc_hipp_mean)
-AIC(model_lin_acc_hipp_mean)
-model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_ACC)
-summary(model_quad_acc_hipp_mean)
-AIC(model_quad_acc_hipp_mean)
-
-# Model 2 m_m_Precuneus ~ hipp mean 
-model_lin_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c, data = MRS_S_Prec)
-summary(model_lin_prec_hipp_mean)
-AIC(model_lin_prec_hipp_mean)
-model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_Prec)
-summary(model_quad_prec_hipp_mean)
-AIC(model_quad_prec_hipp_mean)
-
-
-
-
 # Model 3 m_m_ACC ~ thickness
 model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_ACC)
 summary(model_lin_acc_thick)
@@ -328,15 +303,6 @@ model_quad_prec_memor <- lm(m_m_precuneus ~ memoria_libre_correcte_c + memoria_l
 summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
-
-
-# Model 6 m_m_Precuneus ~ memoria
-model_lin_prec_memor <- lm(face_name_rappel_differe_spectro  ~ m_m_precuneus_c , data = MRS_M_Prec)
-summary(model_lin_prec_memor)
-AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + m_m_precuneus_sq, data = MRS_M_Prec)
-summary(model_quad_prec_memor)
-AIC(model_quad_prec_memor)
 
 #### Activaiton ######
 
@@ -383,15 +349,6 @@ model_mod_hipp_acc  <- lm(memoria_libre_correcte ~ m_m_acc_c + hip_l_nor_icv_c:m
 summary(model_mod_hipp_acc)
 model_mod_hipp_prec  <- lm(memoria_libre_correcte ~ m_m_precuneus_c + hip_l_nor_icv_c:m_m_precuneus_c, data = MRS_SM_Prec)
 summary(model_mod_hipp_prec)
-
-
-##face name
-
-model_mod_hipp_prec_mean  <- lm(face_name_rappel_differe_spectro ~ hipp_mean_c + m_m_precuneus_c + hipp_mean_c:m_m_precuneus_c, data = MRS_SM_Prec)
-summary(model_mod_hipp_prec_mean)
-model_mod_hipp_prec_mean  <- lm(face_name_rappel_differe_spectro ~ m_m_acc_c + hipp_mean_c + hipp_mean_c:m_m_acc_c, data = MRS_SM_ACC)
-summary(model_mod_hipp_prec_mean)
-
 
 
 ## thick x glut
