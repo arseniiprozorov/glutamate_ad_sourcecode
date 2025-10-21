@@ -99,7 +99,7 @@ panel <- panel + plot_annotation(tag_levels = "A") &
         plot.tag.position = c(0.02, 0.98))
 
 #  export  
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
+out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_bar_ACC_Precuneus_panel_1200dpi.tiff"),
@@ -108,6 +108,160 @@ print(panel)
 dev.off()
 
 
+
+
+
+
+#### Violin plot version #######################################################
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(purrr)
+library(ragg)
+
+# --- Long format for ACC and Precuneus ---
+long_data_mM <- MRS_full %>%
+  dplyr::select(diagnostic_nick, m_m_acc, m_m_precuneus) %>%
+  dplyr::rename(ACC = m_m_acc, Precuneus = m_m_precuneus) %>%
+  tidyr::pivot_longer(c(ACC, Precuneus),
+                      names_to = "Region",
+                      values_to = "Value")
+
+# (Optional) summary, not used for plotting
+sum_dat <- long_data_mM %>%
+  dplyr::filter(Region %in% c("ACC","Precuneus")) %>%
+  dplyr::group_by(Region, diagnostic_nick) %>%
+  dplyr::summarise(
+    mean = mean(Value, na.rm = TRUE),
+    se   = sd(Value, na.rm = TRUE)/sqrt(sum(!is.na(Value))),
+    ci   = qt(0.975, df = max(sum(!is.na(Value))-1,1)) * se,
+    .groups = "drop"
+  ) %>%
+  dplyr::mutate(xi = as.numeric(factor(diagnostic_nick, levels=c("HC","SCD+","MCI"))))
+
+# --- Helper: pointy violins + EXACT Tukey overlays (no caps) ---
+
+make_violin_plot <- function(region_name, y_label,
+                             y_min = 13, y_max = 16,
+                             show_points = TRUE,
+                             violin_bw = 0.20,
+                             violin_adjust = 0.6,
+                             headroom = 0.45,
+                             box_halfwidth = 0.12,
+                             median_width   = 0.26) {
+  
+  # draw-only epsilons
+  axis_pad  <- 0.02
+  whisk_min <- 0.04
+  box_eps   <- 1e-6
+  box_min   <- 0.06   # minimum DRAWN box height in mM (doesn't change stats)
+  
+  dat_long <- long_data_mM %>%
+    dplyr::filter(Region == region_name) %>%
+    dplyr::mutate(xi = as.numeric(factor(diagnostic_nick,
+                                         levels = c("HC","SCD+","MCI"))))
+  
+  tallest <- suppressWarnings(max(dat_long$Value, na.rm = TRUE))
+  y_upper  <- max(y_max, tallest) + headroom
+  y_lower  <- y_min - axis_pad
+  
+  # True Tukey stats (same as geom_boxplot)
+  box_df <- dat_long %>%
+    dplyr::group_by(xi, diagnostic_nick) %>%
+    dplyr::summarise(stats = list(boxplot.stats(Value)$stats), .groups = "drop") %>%
+    dplyr::mutate(
+      wlow  = purrr::map_dbl(stats, ~ .x[1]),
+      q1    = purrr::map_dbl(stats, ~ .x[2]),
+      med   = purrr::map_dbl(stats, ~ .x[3]),
+      q3    = purrr::map_dbl(stats, ~ .x[4]),
+      whigh = purrr::map_dbl(stats, ~ .x[5]),
+      iqr   = q3 - q1,
+      
+      # DRAWN box: enforce minimum height centered on the true median
+      draw_q1 = ifelse(iqr < box_min, med - box_min/2, q1),
+      draw_q3 = ifelse(iqr < box_min, med + box_min/2, q3),
+      
+      # Whiskers: guarantee visible length and keep off axes
+      draw_wlow  = pmax(y_lower + axis_pad, pmin(wlow,  draw_q1 - whisk_min)),
+      draw_whigh = pmin(y_upper - axis_pad, pmax(whigh, draw_q3 + whisk_min)),
+      
+      # tiny epsilon so ultra-tight boxes render when iqr ~ 0 but >= box_min
+      draw_q3d = ifelse((draw_q3 - draw_q1) < 1e-8, draw_q3 + box_eps, draw_q3),
+      
+      xmin = xi - box_halfwidth,
+      xmax = xi + box_halfwidth,
+      mmin = xi - median_width/2,
+      mmax = xi + median_width/2
+    )
+  
+  ggplot(dat_long, aes(x = xi, y = Value, fill = diagnostic_nick)) +
+    geom_violin(trim = FALSE, scale = "width", width = 0.8,
+                bw = violin_bw, adjust = violin_adjust,
+                color = "black", linewidth = 0.4, na.rm = TRUE) +
+    { if (show_points)
+      geom_point(position = position_jitter(width = 0.07, height = 0),
+                 size = 1.0, alpha = 0.45, shape = 16, stroke = 0, na.rm = TRUE)
+      else NULL } +
+    # DRAWN IQR box + true median
+    geom_rect(data = box_df,
+              aes(xmin = xmin, xmax = xmax, ymin = draw_q1, ymax = draw_q3d),
+              inherit.aes = FALSE, fill = NA, color = "black", linewidth = 0.65) +
+    geom_segment(data = box_df,
+                 aes(x = mmin, xend = mmax, y = med, yend = med),
+                 inherit.aes = FALSE, linewidth = 0.75, color = "black") +
+    # vertical whiskers (no caps)
+    geom_segment(data = box_df,
+                 aes(x = xi, xend = xi, y = draw_wlow, yend = draw_q1),
+                 inherit.aes = FALSE, linewidth = 0.7, lineend = "butt", color = "black") +
+    geom_segment(data = box_df,
+                 aes(x = xi, xend = xi, y = draw_q3, yend = draw_whigh),
+                 inherit.aes = FALSE, linewidth = 0.7, lineend = "butt", color = "black") +
+    scale_fill_manual(values = c("HC"="#C8C8C8","SCD+"="#9A9A9A","MCI"="#6B6B6B"),
+                      name = "Group") +
+    scale_x_continuous(breaks = 1:3, labels = c("HC","SCD+","MCI"),
+                       limits = c(0.6, 3.4), expand = c(0,0)) +
+    scale_y_continuous(breaks = seq(y_min, y_max, 1),
+                       limits = c(y_lower, y_upper),
+                       expand = expansion(mult = c(0, 0.01))) +
+    coord_cartesian(clip = "off") +
+    labs(x = "", y = y_label) +
+    theme_classic(base_size = 14) +
+    theme(
+      axis.title.y = element_text(size = 16),
+      axis.text.x  = element_text(size = 14),
+      axis.text.y  = element_text(size = 14),
+      plot.margin  = margin(t = 26, r = 18, b = 10, l = 22),
+      legend.position = "bottom"
+    )
+}
+
+
+
+# --- Build panels (no significance elements) ---
+p_acc  <- make_violin_plot("ACC", "ACC Glu (mM)",
+                           y_min = 13, y_max = 16, show_points = TRUE)
+
+p_prec <- make_violin_plot("Precuneus", "Precuneus Glu (mM)",
+                           y_min = 13, y_max = 16, show_points = TRUE)
+
+panel <- p_acc + p_prec + patchwork::plot_layout(guides = "collect") &
+  theme(legend.position = "right")
+
+# A/B tags
+panel <- panel + patchwork::plot_annotation(tag_levels = "A") &
+  theme(plot.tag = element_text(face = "bold", size = 12),
+        plot.tag.position = c(0.02, 0.98))
+
+# --- Export ---
+out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+ragg::agg_tiff(file.path(out_dir, "fig_violin_ACC_Precuneus_panel_1200dpi.tiff"),
+               width = 7, height = 4, units = "in", res = 1200, compression = "lzw")
+print(panel)
+dev.off()
 
 
 
