@@ -35,11 +35,8 @@ MRS_full$sex <- as.factor(MRS_full$sex)
 
 # Creer Hipp mean
 MRS_full$hipp_mean <- (MRS_full$hip_l_nor_icv + MRS_full$righ_hip_vol)/2
+MRS_full$hipp_mean_act <- (MRS_full$activation_hippocampus_l + MRS_full$activation_hippocampus_r)/2
 
-#Vérifier les varibales
-lapply(MRS_full,class)   
-levels(MRS_full$diagnostic_nick)
-table(MRS_full$diagnostic_nick)
 
 
 ##################  Winzorising ###################
@@ -60,6 +57,7 @@ MRS_full$associative_memory_performance <- winsorize_iqr(MRS_full$associative_me
 MRS_full$activation_temporal_inf_r <- winsorize_iqr(MRS_full$activation_temporal_inf_r, 1.5)
 MRS_full$activation_parietal_sup_l <- winsorize_iqr(MRS_full$activation_parietal_sup_l, 1.5)
 MRS_full$activation_hippocampus_l <- winsorize_iqr(MRS_full$activation_hippocampus_l, 1.5)
+MRS_full$hipp_mean_act <- winsorize_iqr(MRS_full$hipp_mean_act, 1.5)
 MRS_full$moca_corr_spectro <- winsorize_iqr(MRS_full$moca_corr_spectro, 1.5)
 MRS_full$dprime_hit_fa <- winsorize_iqr(MRS_full$dprime_hit_fa, 1.5)
 MRS_full$associative_memory_performance_sylvie <- winsorize_iqr(MRS_full$associative_memory_performance_sylvie, 1.5)
@@ -73,7 +71,7 @@ MRS_full$m_m_acc <- winsorize_iqr(MRS_full$m_m_acc, 1.7)
 MRS_full$m_m_precuneus <- winsorize_iqr(MRS_full$m_m_precuneus, 1.7)
 
 
-#jmv::descriptives(data = MRS_full, vars = vars(hipp_mean,hip_l_nor_icv),sd = TRUE,range = TRUE,skew = TRUE,kurt = TRUE)
+#jmv::descriptives(data = MRS_full, vars = vars(hipp_mean_act),sd = TRUE,range = TRUE,skew = TRUE,kurt = TRUE)
 
 
 #### Centrer et mettre au carré
@@ -119,6 +117,9 @@ MRS_full$associative_memory_performance_sylvie_sq <- MRS_full$associative_memory
 #  activation_hippocampus_l
 MRS_full$activation_hippocampus_l_c  <- scale(MRS_full$activation_hippocampus_l, center = TRUE, scale = FALSE)
 MRS_full$activation_hippocampus_l_sq <- MRS_full$activation_hippocampus_l_c^2
+#  activation_hipp mean
+MRS_full$hipp_mean_act_c  <- scale(MRS_full$hipp_mean_act, center = TRUE, scale = FALSE)
+MRS_full$hipp_mean_act_sq <- MRS_full$hipp_mean_act_c^2
 #  activation_parietal_sup_l 
 MRS_full$activation_parietal_sup_l_c  <- scale(MRS_full$activation_parietal_sup_l, center = TRUE, scale = FALSE)
 MRS_full$activation_parietal_sup_l_sq <- MRS_full$activation_parietal_sup_l_c^2
@@ -130,7 +131,7 @@ MRS_full$activation_temporal_inf_r_sq <- MRS_full$activation_temporal_inf_r_c^2
 
 ##### Creer de banques de donees pour les analyses
 
-#### Structure and Memory ####
+#### Structure ####
 MRS_S_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","hipp_mean","hipp_mean_c","hipp_mean_sq","sex", "age_spectro_c",
                            "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                            "cortical_thickness_adsignature_dickson_c","cortical_thickness_adsignature_dickson_sq")] |> na.omit()
@@ -139,6 +140,19 @@ MRS_S_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","m_m_precuneus_sq
                           "hip_l_nor_icv", "hip_l_nor_icv_c", "hip_l_nor_icv_sq","cortical_thickness_adsignature_dickson",
                           "cortical_thickness_adsignature_dickson_c", "cortical_thickness_adsignature_dickson_sq")] |> na.omit()
 
+
+
+# Activaiton 
+MRS_A_Prec <- MRS_full[, c(
+  "m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","activation_hippocampus_l", "activation_hippocampus_l_c","hipp_mean_act","hipp_mean_act_c","hipp_mean_act_sq",
+  "activation_hippocampus_l_sq","activation_parietal_sup_l", "activation_parietal_sup_l_c", "sex", "age_spectro_c",
+  "activation_parietal_sup_l_sq")] |> na.omit()
+
+MRS_A_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","hipp_mean_act","hipp_mean_act_c","hipp_mean_act_sq",
+                          "activation_hippocampus_l", "activation_hippocampus_l_c", "activation_hippocampus_l_sq","sex", "age_spectro_c",
+                          "activation_parietal_sup_l", "activation_parietal_sup_l_c", "activation_parietal_sup_l_sq")] |> na.omit()
+
+# Memory 
 MRS_M_Prec <- MRS_full[, c("m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","face_name_rappel_differe_spectro","face_name_rappel_differe_spectro_c","face_name_rappel_differe_spectro_sq",
                            "memoria_libre_correcte", "memoria_libre_correcte_c", "memoria_libre_correcte_sq","sex", "age_spectro_c",
                            "associative_memory_performance","associative_memory_performance_c",
@@ -148,19 +162,6 @@ MRS_M_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq","memoria_libre_co
                           "memoria_libre_correcte_c", "memoria_libre_correcte_sq","face_name_rappel_differe_spectro","sex", "age_spectro_c",
                           "associative_memory_performance","associative_memory_performance_c",
                           "associative_memory_performance_sq")] |> na.omit()
-
-# Activaiton 
-MRS_A_Prec <- MRS_full[, c(
-  "m_m_precuneus", "m_m_precuneus_c", "m_m_precuneus_sq","activation_hippocampus_l", "activation_hippocampus_l_c", 
-  "activation_hippocampus_l_sq","activation_parietal_sup_l", "activation_parietal_sup_l_c", "sex", "age_spectro_c",
-  "activation_parietal_sup_l_sq")] |> na.omit()
-
-MRS_A_ACC <- MRS_full[, c("m_m_acc", "m_m_acc_c", "m_m_acc_sq",
-                          "activation_hippocampus_l", "activation_hippocampus_l_c", "activation_hippocampus_l_sq","sex", "age_spectro_c",
-                          "activation_parietal_sup_l", "activation_parietal_sup_l_c", "activation_parietal_sup_l_sq")] |> na.omit()
-
-
-
 ############################## ANALYSES PRINCIPALES ###########################
 
 
@@ -207,12 +208,6 @@ summary(anova_face)
 TukeyHSD(anova_face)
 
 
-# d prime
-jmv::descriptives(data = MRS_full,vars = vars(dprime_hit_fa), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE)
-anova_dprime <- aov(dprime_hit_fa ~ diagnostic_nick, data = MRS_full)
-summary(anova_dprime)
-TukeyHSD(anova_dprime)
-
 # Associative memory
 jmv::descriptives(data = MRS_full,vars = vars(associative_memory_performance), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE)
 anova_assoc <- aov(associative_memory_performance ~ diagnostic_nick, data = MRS_full)
@@ -220,11 +215,9 @@ summary(anova_assoc)
 TukeyHSD(anova_assoc)
 
 
-
-
-########################### ANOVA   ##########################
-
+################ ANOVA glut  ###################
 jmv::descriptives(data = MRS_full,vars = vars(m_m_precuneus, m_m_acc), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE, iqr = TRUE)
+
 #  ACC
 anova_acc <- aov(m_m_acc ~ diagnostic_nick, data = MRS_full)
 summary(anova_acc)
@@ -238,36 +231,33 @@ eta_squared(anova_precuneus)
 
 
 
-## controling for sex
-#  ACC
-anova_acc <- aov(m_m_acc ~ diagnostic_nick + sex, data = MRS_full)
-summary(anova_acc)
-TukeyHSD(anova_acc)
-eta_squared(anova_acc)          
-# For Precuneus
-anova_precuneus <- aov(m_m_precuneus ~ diagnostic_nick + sex, data = MRS_full)
-summary(anova_precuneus)
-TukeyHSD(anova_precuneus)
-eta_squared(anova_precuneus)   
 
-#controling for age 
-#  ACC
-anova_acc <- aov(m_m_acc ~ diagnostic_nick + age_spectro_c, data = MRS_full)
-summary(anova_acc)
-emm_acc <- emmeans(anova_acc, ~ diagnostic_nick)
-emm_acc
-pairs(emm_acc, adjust = "tukey")
-
-# For Precuneus
-anova_precuneus <- aov(m_m_precuneus ~ diagnostic_nick +  age_spectro_c, data = MRS_full)
-summary(anova_precuneus)
-emm_precuneus <- emmeans(anova_precuneus, ~ diagnostic_nick)
-emm_precuneus
-pairs(emm_precuneus, adjust = "tukey")  
+######################### Polynomial analyses  ####################################
+## Critical point function 
+# ---- Helper: vertex (x-critical point) for y ~ b0 + b1*x + b2*x^2 + covariates ----
+vertex_x <- function(mod, lin, quad) {b <- coef(mod)
+  b1 <- b[[lin]]
+  b2 <- b[[quad]]
+  -b1 / (2 * b2)}
 
 
-######################### Polynomial analyses  #####################################
-names(MRS_full)
+
+# ---- Compute for your models (edit names only if your coef labels differ) ----
+vertex_x(model_quad_acc_hipp_mean,
+         lin = "hipp_mean_c", quad = "hipp_mean_sq")
+vertex_x(model_quad_prec_hipp_mean,
+         lin = "hipp_mean_c", quad = "hipp_mean_sq")
+vertex_x(model_quad_acc_thick,
+         lin = "cortical_thickness_adsignature_dickson_c",
+         quad = "cortical_thickness_adsignature_dickson_sq")
+vertex_x(model_quad_prec_thick,
+         lin = "cortical_thickness_adsignature_dickson_c",
+         quad = "cortical_thickness_adsignature_dickson_sq")
+vertex_x(model_quad_prec_memor,
+         lin = "m_m_precuneus_c", quad = "m_m_precuneus_sq")
+
+
+
 #### structure and memory ######
 
 
@@ -278,6 +268,8 @@ AIC(model_lin_acc_hipp_mean)
 model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_ACC)
 summary(model_quad_acc_hipp_mean)
 AIC(model_quad_acc_hipp_mean)
+vertex_x(model_quad_acc_hipp_mean,
+         lin = "hipp_mean_c", quad = "hipp_mean_sq")
 
 # Model 2 m_m_Precuneus ~ hipp mean 
 model_lin_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c, data = MRS_S_Prec)
@@ -286,8 +278,8 @@ AIC(model_lin_prec_hipp_mean)
 model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_Prec)
 summary(model_quad_prec_hipp_mean)
 AIC(model_quad_prec_hipp_mean)
-
-
+vertex_x(model_quad_prec_hipp_mean,
+         lin = "hipp_mean_c", quad = "hipp_mean_sq")
 
 # Model 3 m_m_ACC ~ thickness
 model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_ACC)
@@ -296,6 +288,9 @@ AIC(model_lin_acc_thick)
 model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_ACC)
 summary(model_quad_acc_thick)
 AIC(model_quad_acc_thick)
+vertex_x(model_quad_acc_thick,
+         lin = "cortical_thickness_adsignature_dickson_c",
+         quad = "cortical_thickness_adsignature_dickson_sq")
 
 # Model 4 m_m_Precuneus ~ thickness
 model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_Prec)
@@ -304,10 +299,13 @@ AIC(model_lin_prec_thick)
 model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_Prec)
 summary(model_quad_prec_thick)
 AIC(model_quad_prec_thick)
-
+vertex_x(model_quad_prec_thick,
+         lin = "cortical_thickness_adsignature_dickson_c",
+         quad = "cortical_thickness_adsignature_dickson_sq")
 
 #### Activaiton ######
-
+names(MRS_A_ACC)
+names(MRS_A_Prec)
 ## Model 5 ACC ~ activaiton parietal
 model_lin_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l, data = MRS_A_ACC)
 summary(model_lin_acc_sup_act_rev)
@@ -343,7 +341,21 @@ model_quad_prec_hipp_act <- lm(m_m_precuneus ~ activation_hippocampus_l_c + acti
 summary(model_quad_prec_hipp_act)
 AIC(model_quad_prec_hipp_act)
 
+# Model 7 acc ~ hipp activation mean
+model_lin_acc_hipp_act <- lm(m_m_acc ~ hipp_mean_act_c, data = MRS_A_ACC)
+summary(model_lin_acc_hipp_act)
+AIC(model_lin_acc_hipp_act)
+model_quad_acc_hipp_act <- lm(m_m_acc ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_A_ACC)
+summary(model_quad_acc_hipp_act)
+AIC(model_quad_acc_hipp_act)
 
+# Model 8 precuneus  ~ hipp activation mean
+model_lin_prec_hipp_act <- lm(m_m_precuneus ~ hipp_mean_act_c, data = MRS_A_Prec)
+summary(model_lin_prec_hipp_act)
+AIC(model_lin_prec_hipp_act)
+model_quad_prec_hipp_act <- lm(m_m_precuneus ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_A_Prec)
+summary(model_quad_prec_hipp_act)
+AIC(model_quad_prec_hipp_act)
 
 ### Memory ###
 
@@ -380,109 +392,19 @@ summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
 
-
-
-
-#Controling sex
-# Model 1 m_m_ACC ~ hipp mean + sex
-model_lin_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + sex, data = MRS_S_ACC)
-summary(model_lin_acc_hipp_mean)
-AIC(model_lin_acc_hipp_mean)
-model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq + sex, data = MRS_S_ACC)
-summary(model_quad_acc_hipp_mean)
-AIC(model_quad_acc_hipp_mean)
-
-# Model 2 m_m_Precuneus ~ hipp mean + sex
-model_lin_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + sex, data = MRS_S_Prec)
-summary(model_lin_prec_hipp_mean)
-AIC(model_lin_prec_hipp_mean)
-model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq + sex, data = MRS_S_Prec)
-summary(model_quad_prec_hipp_mean)
-AIC(model_quad_prec_hipp_mean)
-
-# Model 3 m_m_ACC ~ thickness + sex
-model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + sex, data = MRS_S_ACC)
-summary(model_lin_acc_thick)
-AIC(model_lin_acc_thick)
-model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + sex, data = MRS_S_ACC)
-summary(model_quad_acc_thick)
-AIC(model_quad_acc_thick)
-
-# Model 4 m_m_Precuneus ~ thickness + sex
-model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + sex, data = MRS_S_Prec)
-summary(model_lin_prec_thick)
-AIC(model_lin_prec_thick)
-model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + sex, data = MRS_S_Prec)
-summary(model_quad_prec_thick)
-AIC(model_quad_prec_thick)
-
-#### Activation ######
-
-## Model 5 ACC ~ activation parietal + sex
-model_lin_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l + sex, data = MRS_A_ACC)
-summary(model_lin_acc_sup_act_rev)
-AIC(model_lin_acc_sup_act_rev)
-
-model_quad_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + sex, data = MRS_A_ACC)
-summary(model_quad_acc_sup_act_rev)
-AIC(model_quad_acc_sup_act_rev)
-
-## Model 6 Precuneus ~ activation parietal + sex
-model_lin_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l + sex, data = MRS_A_Prec)
-summary(model_lin_prec_sup_act_rev)
-AIC(model_lin_prec_sup_act_rev)
-
-model_quad_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + sex, data = MRS_A_Prec)
-summary(model_quad_prec_sup_act_rev)
-AIC(model_quad_prec_sup_act_rev)
-
-# Model 7 ACC ~ hippocampal activation + sex
-model_lin_acc_hipp_act <- lm(m_m_acc ~ activation_hippocampus_l_c + sex, data = MRS_A_ACC)
-summary(model_lin_acc_hipp_act)
-AIC(model_lin_acc_hipp_act)
-model_quad_acc_hipp_act <- lm(m_m_acc ~ activation_hippocampus_l_c + activation_hippocampus_l_sq + sex, data = MRS_A_ACC)
-summary(model_quad_acc_hipp_act)
-AIC(model_quad_acc_hipp_act)
-
-# Model 8 Precuneus ~ hippocampal activation + sex
-model_lin_prec_hipp_act <- lm(m_m_precuneus ~ activation_hippocampus_l_c + sex, data = MRS_A_Prec)
-summary(model_lin_prec_hipp_act)
-AIC(model_lin_prec_hipp_act)
-model_quad_prec_hipp_act <- lm(m_m_precuneus ~ activation_hippocampus_l_c + activation_hippocampus_l_sq + sex, data = MRS_A_Prec)
-summary(model_quad_prec_hipp_act)
-AIC(model_quad_prec_hipp_act)
-
-### Memory ###
-
-# Model 9 memoria ~ ACC Glu + sex
-model_lin_acc_memor <- lm(memoria_libre_correcte ~ m_m_acc_c + sex, data = MRS_M_ACC)
+# Model 13 associative memory ~  ACC glu
+model_lin_acc_memor <- lm(associative_memory_performance ~ m_m_acc_c, data = MRS_M_ACC)
 summary(model_lin_acc_memor)
 AIC(model_lin_acc_memor)
-model_quad_acc_memor <- lm(memoria_libre_correcte ~ m_m_acc_c + m_m_acc_sq + sex, data = MRS_M_ACC)
+model_quad_acc_memor <- lm(associative_memory_performance ~ m_m_acc_c + m_m_acc_sq, data = MRS_M_ACC)
 summary(model_quad_acc_memor)
 AIC(model_quad_acc_memor)
 
-# Model 10 memoria ~ Precuneus Glu + sex
-model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + sex, data = MRS_M_Prec)
+# Model 14 assosiative memory ~ Precuneus glu
+model_lin_prec_memor <- lm(associative_memory_performance ~ m_m_precuneus_c, data = MRS_M_Prec)
 summary(model_lin_prec_memor)
 AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq + sex, data = MRS_M_Prec)
-summary(model_quad_prec_memor)
-AIC(model_quad_prec_memor)
-
-# Model 11 face name ~ ACC Glu + sex
-model_lin_acc_memor <- lm(face_name_rappel_differe_spectro ~ m_m_acc_c + sex, data = MRS_M_ACC)
-summary(model_lin_acc_memor)
-AIC(model_lin_acc_memor)
-model_quad_acc_memor <- lm(face_name_rappel_differe_spectro ~ m_m_acc_c + m_m_acc_sq + sex, data = MRS_M_ACC)
-summary(model_quad_acc_memor)
-AIC(model_quad_acc_memor)
-
-# Model 12 face name ~ Precuneus Glu + sex
-model_lin_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + sex, data = MRS_M_Prec)
-summary(model_lin_prec_memor)
-AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + m_m_precuneus_sq + sex, data = MRS_M_Prec)
+model_quad_prec_memor <- lm(associative_memory_performance ~ m_m_precuneus_c + m_m_precuneus_sq, data = MRS_M_Prec)
 summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
@@ -490,157 +412,5 @@ AIC(model_quad_prec_memor)
 
 
 
-
-##   controling for sex and age 
-
-
-
-
-# Model 1 m_m_ACC ~ hipp mean + sex + age
-model_lin_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + sex + age_spectro_c, data = MRS_S_ACC)
-summary(model_lin_acc_hipp_mean)
-AIC(model_lin_acc_hipp_mean)
-model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq + sex + age_spectro_c, data = MRS_S_ACC)
-summary(model_quad_acc_hipp_mean)
-AIC(model_quad_acc_hipp_mean)
-
-# Model 2 m_m_Precuneus ~ hipp mean + sex + age
-model_lin_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + sex + age_spectro_c, data = MRS_S_Prec)
-summary(model_lin_prec_hipp_mean)
-AIC(model_lin_prec_hipp_mean)
-model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq + sex + age_spectro_c, data = MRS_S_Prec)
-summary(model_quad_prec_hipp_mean)
-AIC(model_quad_prec_hipp_mean)
-
-# Model 3 m_m_ACC ~ thickness + sex + age
-model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + sex + age_spectro_c, data = MRS_S_ACC)
-summary(model_lin_acc_thick)
-AIC(model_lin_acc_thick)
-model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + sex + age_spectro_c, data = MRS_S_ACC)
-summary(model_quad_acc_thick)
-AIC(model_quad_acc_thick)
-
-# Model 4 m_m_Precuneus ~ thickness + sex + age
-model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + sex + age_spectro_c, data = MRS_S_Prec)
-summary(model_lin_prec_thick)
-AIC(model_lin_prec_thick)
-model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + sex + age_spectro_c, data = MRS_S_Prec)
-summary(model_quad_prec_thick)
-AIC(model_quad_prec_thick)
-
-#### Activation ######
-
-## Model 5 ACC ~ activation parietal + sex + age
-model_lin_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l + sex + age_spectro_c, data = MRS_A_ACC)
-summary(model_lin_acc_sup_act_rev)
-AIC(model_lin_acc_sup_act_rev)
-
-model_quad_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + sex + age_spectro_c, data = MRS_A_ACC)
-summary(model_quad_acc_sup_act_rev)
-AIC(model_quad_acc_sup_act_rev)
-
-## Model 6 Precuneus ~ activation parietal + sex + age
-model_lin_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l + sex + age_spectro_c, data = MRS_A_Prec)
-summary(model_lin_prec_sup_act_rev)
-AIC(model_lin_prec_sup_act_rev)
-
-model_quad_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + sex + age_spectro_c, data = MRS_A_Prec)
-summary(model_quad_prec_sup_act_rev)
-AIC(model_quad_prec_sup_act_rev)
-
-# Model 7 ACC ~ hippocampal activation + sex + age
-model_lin_acc_hipp_act <- lm(m_m_acc ~ activation_hippocampus_l_c + sex + age_spectro_c, data = MRS_A_ACC)
-summary(model_lin_acc_hipp_act)
-AIC(model_lin_acc_hipp_act)
-model_quad_acc_hipp_act <- lm(m_m_acc ~ activation_hippocampus_l_c + activation_hippocampus_l_sq + sex + age_spectro_c, data = MRS_A_ACC)
-summary(model_quad_acc_hipp_act)
-AIC(model_quad_acc_hipp_act)
-
-# Model 8 Precuneus ~ hippocampal activation + sex + age
-model_lin_prec_hipp_act <- lm(m_m_precuneus ~ activation_hippocampus_l_c + sex + age_spectro_c, data = MRS_A_Prec)
-summary(model_lin_prec_hipp_act)
-AIC(model_lin_prec_hipp_act)
-model_quad_prec_hipp_act <- lm(m_m_precuneus ~ activation_hippocampus_l_c + activation_hippocampus_l_sq + sex + age_spectro_c, data = MRS_A_Prec)
-summary(model_quad_prec_hipp_act)
-AIC(model_quad_prec_hipp_act)
-
-### Memory ###
-
-# Model 9 memoria ~ ACC Glu + sex + age
-model_lin_acc_memor <- lm(memoria_libre_correcte ~ m_m_acc_c + sex + age_spectro_c, data = MRS_M_ACC)
-summary(model_lin_acc_memor)
-AIC(model_lin_acc_memor)
-model_quad_acc_memor <- lm(memoria_libre_correcte ~ m_m_acc_c + m_m_acc_sq + sex + age_spectro_c, data = MRS_M_ACC)
-summary(model_quad_acc_memor)
-AIC(model_quad_acc_memor)
-
-# Model 10 memoria ~ Precuneus Glu + sex + age
-model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + sex + age_spectro_c, data = MRS_M_Prec)
-summary(model_lin_prec_memor)
-AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq + sex + age_spectro_c, data = MRS_M_Prec)
-summary(model_quad_prec_memor)
-AIC(model_quad_prec_memor)
-
-# Model 11 face name ~ ACC Glu + sex + age
-model_lin_acc_memor <- lm(face_name_rappel_differe_spectro ~ m_m_acc_c + sex + age_spectro_c, data = MRS_M_ACC)
-summary(model_lin_acc_memor)
-AIC(model_lin_acc_memor)
-model_quad_acc_memor <- lm(face_name_rappel_differe_spectro ~ m_m_acc_c + m_m_acc_sq + sex + age_spectro_c, data = MRS_M_ACC)
-summary(model_quad_acc_memor)
-AIC(model_quad_acc_memor)
-
-# Model 12 face name ~ Precuneus Glu + sex + age
-model_lin_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + sex + age_spectro_c, data = MRS_M_Prec)
-summary(model_lin_prec_memor)
-AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + m_m_precuneus_sq + sex + age_spectro_c, data = MRS_M_Prec)
-summary(model_quad_prec_memor)
-AIC(model_quad_prec_memor)
-
-
-
-
-
-
-
-
-
-
-
-
-## Critical point
-# ---- Helper: vertex (x-critical point) for y ~ b0 + b1*x + b2*x^2 + covariates ----
-vertex_x <- function(mod, lin, quad, level = 0.95) {
-  b <- coef(mod);b1 <- b[[lin]]; b2 <- b[[quad]]
-  xhat <- -b1 / (2 * b2)
-  return(xhat)}
-
-vertex_y <- function(mod, lin, quad) {
-  b <- coef(mod)
-  b0 <- b["(Intercept)"]
-  b1 <- b[[lin]]
-  b2 <- b[[quad]]
-  yhat <- b0 - (b1^2) / (4 * b2)
-  return(yhat)
-}
-
-
-# ---- Compute for your models (edit names only if your coef labels differ) ----
-vertex_x(model_quad_acc_hipp_mean,
-                            lin = "hipp_mean_c", quad = "hipp_mean_sq")
-vertex_x(model_quad_prec_hipp_mean,
-                            lin = "hipp_mean_c", quad = "hipp_mean_sq")
-vertex_x(model_quad_acc_thick,
-                            lin = "cortical_thickness_adsignature_dickson_c",
-                            quad = "cortical_thickness_adsignature_dickson_sq")
-vertex_x(model_quad_prec_thick,
-                            lin = "cortical_thickness_adsignature_dickson_c",
-                            quad = "cortical_thickness_adsignature_dickson_sq")
-vertex_x(model_quad_prec_memor,
-                            lin = "m_m_precuneus_c", quad = "m_m_precuneus_sq")
-
-vertex_y(model_quad_prec_memor,
-         lin = "m_m_precuneus_c", quad = "m_m_precuneus_sq")
 
 

@@ -121,7 +121,7 @@ library(patchwork)
 library(purrr)
 library(ragg)
 
-# --- Long format for ACC and Precuneus ---
+# --- Long format for ACC and Precuneus (unchanged) ---
 long_data_mM <- MRS_full %>%
   dplyr::select(diagnostic_nick, m_m_acc, m_m_precuneus) %>%
   dplyr::rename(ACC = m_m_acc, Precuneus = m_m_precuneus) %>%
@@ -129,74 +129,61 @@ long_data_mM <- MRS_full %>%
                       names_to = "Region",
                       values_to = "Value")
 
-# (Optional) summary, not used for plotting
-sum_dat <- long_data_mM %>%
-  dplyr::filter(Region %in% c("ACC","Precuneus")) %>%
-  dplyr::group_by(Region, diagnostic_nick) %>%
-  dplyr::summarise(
-    mean = mean(Value, na.rm = TRUE),
-    se   = sd(Value, na.rm = TRUE)/sqrt(sum(!is.na(Value))),
-    ci   = qt(0.975, df = max(sum(!is.na(Value))-1,1)) * se,
-    .groups = "drop"
-  ) %>%
-  dplyr::mutate(xi = as.numeric(factor(diagnostic_nick, levels=c("HC","SCD+","MCI"))))
 
 # --- Helper: pointy violins + EXACT Tukey overlays (no caps) ---
-
-make_violin_plot <- function(region_name, y_label,
-                             y_min = 13, y_max = 16,
-                             show_points = TRUE,
-                             violin_bw = 0.20,
-                             violin_adjust = 0.6,
-                             headroom = 0.45,
-                             box_halfwidth = 0.12,
-                             median_width   = 0.26) {
+make_violin_plot_A <- function(region_name, y_label,
+                               y_min = 13, y_max = 16,
+                               show_points = TRUE,
+                               violin_bw = 0.35,
+                               violin_adjust = 1,
+                               headroom = 0.45,
+                               box_halfwidth = 0.12,
+                               median_width   = 0.26) {
   
-  # draw-only epsilons
-  axis_pad  <- 0.02
-  whisk_min <- 0.04
-  box_eps   <- 1e-6
-  box_min   <- 0.06   # minimum DRAWN box height in mM (doesn't change stats)
+  axis_pad  <- 0.02; box_eps <- 1e-6
   
   dat_long <- long_data_mM %>%
     dplyr::filter(Region == region_name) %>%
-    dplyr::mutate(xi = as.numeric(factor(diagnostic_nick,
-                                         levels = c("HC","SCD+","MCI"))))
+    dplyr::mutate(group_f = factor(diagnostic_nick, levels = c("HC","SCD+","MCI")),
+                  xi_num  = as.numeric(group_f))
   
   tallest <- suppressWarnings(max(dat_long$Value, na.rm = TRUE))
   y_upper  <- max(y_max, tallest) + headroom
   y_lower  <- y_min - axis_pad
   
-  # True Tukey stats (same as geom_boxplot)
+  # Tukey box/whisker stats (no artificial minimum whiskers)
   box_df <- dat_long %>%
-    dplyr::group_by(xi, diagnostic_nick) %>%
-    dplyr::summarise(stats = list(boxplot.stats(Value)$stats), .groups = "drop") %>%
+    dplyr::group_by(group_f) %>%
+    dplyr::summarise(
+      xi   = as.numeric(first(factor(group_f, levels = c("HC","SCD+","MCI")))),
+      vals = list(sort(stats::na.omit(Value))),
+      .groups = "drop"
+    ) %>%
+    dplyr::rowwise() %>%
     dplyr::mutate(
-      wlow  = purrr::map_dbl(stats, ~ .x[1]),
-      q1    = purrr::map_dbl(stats, ~ .x[2]),
-      med   = purrr::map_dbl(stats, ~ .x[3]),
-      q3    = purrr::map_dbl(stats, ~ .x[4]),
-      whigh = purrr::map_dbl(stats, ~ .x[5]),
-      iqr   = q3 - q1,
-      
-      # DRAWN box: enforce minimum height centered on the true median
-      draw_q1 = ifelse(iqr < box_min, med - box_min/2, q1),
-      draw_q3 = ifelse(iqr < box_min, med + box_min/2, q3),
-      
-      # Whiskers: guarantee visible length and keep off axes
-      draw_wlow  = pmax(y_lower + axis_pad, pmin(wlow,  draw_q1 - whisk_min)),
-      draw_whigh = pmin(y_upper - axis_pad, pmax(whigh, draw_q3 + whisk_min)),
-      
-      # tiny epsilon so ultra-tight boxes render when iqr ~ 0 but >= box_min
-      draw_q3d = ifelse((draw_q3 - draw_q1) < 1e-8, draw_q3 + box_eps, draw_q3),
-      
-      xmin = xi - box_halfwidth,
-      xmax = xi + box_halfwidth,
-      mmin = xi - median_width/2,
-      mmax = xi + median_width/2
-    )
+      q1  = as.numeric(stats::quantile(vals, 0.25, names = FALSE, type = 7)),
+      med = as.numeric(stats::quantile(vals, 0.50, names = FALSE, type = 7)),
+      q3  = as.numeric(stats::quantile(vals, 0.75, names = FALSE, type = 7)),
+      iqr = q3 - q1,
+      loF = q1 - 1.5 * iqr,
+      hiF = q3 + 1.5 * iqr,
+      wlow  = if (length(vals) == 0) q1 else {
+        vv <- vals[vals >= loF]
+        if (length(vv)) min(vv) else q1
+      },
+      whigh = if (length(vals) == 0) q3 else {
+        vv <- vals[vals <= hiF]
+        if (length(vv)) max(vv) else q3
+      },
+      eps = 0.015,
+      draw_q1 = if (iqr == 0) med - eps else q1,
+      draw_q3 = if (iqr == 0) med + eps else q3,
+      draw_q3d = if ((draw_q3 - draw_q1) < 1e-8) draw_q3 + box_eps else draw_q3,
+      xmin = xi - box_halfwidth, xmax = xi + box_halfwidth,
+      mmin = xi - median_width/2, mmax = xi + median_width/2
+    ) %>% dplyr::ungroup()
   
-  ggplot(dat_long, aes(x = xi, y = Value, fill = diagnostic_nick)) +
+  ggplot(dat_long, aes(x = group_f, y = Value, fill = group_f)) +
     geom_violin(trim = FALSE, scale = "width", width = 0.8,
                 bw = violin_bw, adjust = violin_adjust,
                 color = "black", linewidth = 0.4, na.rm = TRUE) +
@@ -204,24 +191,21 @@ make_violin_plot <- function(region_name, y_label,
       geom_point(position = position_jitter(width = 0.07, height = 0),
                  size = 1.0, alpha = 0.45, shape = 16, stroke = 0, na.rm = TRUE)
       else NULL } +
-    # DRAWN IQR box + true median
     geom_rect(data = box_df,
               aes(xmin = xmin, xmax = xmax, ymin = draw_q1, ymax = draw_q3d),
               inherit.aes = FALSE, fill = NA, color = "black", linewidth = 0.65) +
     geom_segment(data = box_df,
                  aes(x = mmin, xend = mmax, y = med, yend = med),
                  inherit.aes = FALSE, linewidth = 0.75, color = "black") +
-    # vertical whiskers (no caps)
     geom_segment(data = box_df,
-                 aes(x = xi, xend = xi, y = draw_wlow, yend = draw_q1),
+                 aes(x = xi, xend = xi, y = wlow, yend = draw_q1),
                  inherit.aes = FALSE, linewidth = 0.7, lineend = "butt", color = "black") +
     geom_segment(data = box_df,
-                 aes(x = xi, xend = xi, y = draw_q3, yend = draw_whigh),
+                 aes(x = xi, xend = xi, y = draw_q3, yend = whigh),
                  inherit.aes = FALSE, linewidth = 0.7, lineend = "butt", color = "black") +
-    scale_fill_manual(values = c("HC"="#C8C8C8","SCD+"="#9A9A9A","MCI"="#6B6B6B"),
+    scale_fill_manual(values = c("HC"="#D9D9D9","SCD+"="#8F8F8F","MCI"="#4A4A4A"),
                       name = "Group") +
-    scale_x_continuous(breaks = 1:3, labels = c("HC","SCD+","MCI"),
-                       limits = c(0.6, 3.4), expand = c(0,0)) +
+    scale_x_discrete(labels = c("HC","SCD+","MCI"), drop = FALSE) +
     scale_y_continuous(breaks = seq(y_min, y_max, 1),
                        limits = c(y_lower, y_upper),
                        expand = expansion(mult = c(0, 0.01))) +
@@ -238,13 +222,9 @@ make_violin_plot <- function(region_name, y_label,
 }
 
 
-
 # --- Build panels (no significance elements) ---
-p_acc  <- make_violin_plot("ACC", "ACC Glu (mM)",
-                           y_min = 13, y_max = 16, show_points = TRUE)
-
-p_prec <- make_violin_plot("Precuneus", "Precuneus Glu (mM)",
-                           y_min = 13, y_max = 16, show_points = TRUE)
+p_acc  <- make_violin_plot("ACC", "ACC Glu (mM)", y_min = 12, y_max = 16, show_points = TRUE)
+p_prec <- make_violin_plot("Precuneus", "Precuneus Glu (mM)", y_min = 12, y_max = 16, show_points = TRUE)
 
 panel <- p_acc + p_prec + patchwork::plot_layout(guides = "collect") &
   theme(legend.position = "right")
@@ -255,7 +235,7 @@ panel <- panel + patchwork::plot_annotation(tag_levels = "A") &
         plot.tag.position = c(0.02, 0.98))
 
 # --- Export ---
-out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_violin_ACC_Precuneus_panel_1200dpi.tiff"),
@@ -268,90 +248,6 @@ dev.off()
 
 ####### Structure and Memory #####################
 ##########  quadratic structure  ##########
-
-# 1) Z-scores 
-MRS_full <- MRS_full %>%
-  mutate(
-    hip_l_nor_icv_z = as.numeric(scale(hip_l_nor_icv)),
-    ct_ad_z         = as.numeric(scale(cortical_thickness_adsignature_dickson)),
-    group           = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
-  )
-
-# 2) Common Y limits
-y_rng <- range(MRS_full$m_m_acc, MRS_full$m_m_precuneus, na.rm = TRUE)
-y_lim <- c(floor(y_rng[1] - 0.2), ceiling(y_rng[2] + 0.2))
-
-# 3) Helper (quadratic by default)
-base_scatter <- function(df, x, y, xlab, ylab, reverse_x = FALSE) {
-  p <- ggplot(df, aes(x = .data[[x]], y = .data[[y]])) +
-    geom_point(aes(shape = group), color = "grey30", size = 1.4, alpha = 0.8) +
-    stat_smooth(method = "lm", formula = y ~ x + I(x^2),
-                se = FALSE, color = "black", linewidth = 0.8) +
-    scale_shape_manual(values = c(16,17,15), name = "Group",
-                       labels = c("HC","SCD+","MCI")) +
-    labs(x = xlab, y = ylab) +
-    coord_cartesian(ylim = y_lim, clip = "off") +
-    theme_classic(base_size = 12, base_family = "Arial") +
-    theme(
-      plot.margin = margin(8, 8, 8, 8),
-      legend.position = "right",
-      legend.title = element_text(size = 12),
-      legend.text  = element_text(size = 11)
-    )
-  if (reverse_x) p <- p + scale_x_reverse()
-  p
-}
-
-# 4) Data 
-df_acc  <- MRS_full %>%
-  select(m_m_acc, m_m_precuneus, hip_l_nor_icv_z, ct_ad_z, group) %>%
-  tidyr::drop_na()
-df_prec <- df_acc
-
-# 5) Panels (ALL quadratic)
-p1 <- base_scatter(df_acc,  "hip_l_nor_icv_z", "m_m_acc",
-                   "Left Hippocampal volume", "ACC Glu (mM)",
-                   reverse_x = TRUE)
-
-p2 <- base_scatter(df_prec, "hip_l_nor_icv_z", "m_m_precuneus",
-                   "Left Hippocampal volume", "Precuneus Glu (mM)",
-                   reverse_x = TRUE)
-
-p3 <- base_scatter(df_acc,  "ct_ad_z", "m_m_acc",
-                   "Cortical thickness AD", "ACC Glu (mM)",
-                   reverse_x = TRUE)
-
-p4 <- base_scatter(df_prec, "ct_ad_z", "m_m_precuneus",
-                   "Cortical thickness AD", "Precuneus Glu (mM)",
-                   reverse_x = TRUE)
-
-# 6) Arrange 2x2
-combo <- (p1 | p2) / (p3 | p4) + plot_layout(guides = "collect") &
-  theme(
-    legend.position = "right",
-    plot.tag = element_text(face = "bold", size = 12),
-    plot.tag.position = c(0.02, 0.98)
-  )
-
-# optional thin right spacer, then apply tags
-final_plot <- (combo | plot_spacer()) + plot_layout(widths = c(1, 0.06))
-final_plot <- final_plot + plot_annotation(tag_levels = "A") &
-  theme(legend.box.margin = margin(10, 8, 0, 0))
-
-# 7) Export to your project figures folder
-out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
-if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
-
-ragg::agg_tiff(file.path(out_dir, "fig_glu_four_panels_quad_1200dpi.tiff"),
-               width = 7.0, height = 6.0, units = "in",
-               res = 1200, compression = "lzw")
-print(final_plot)
-dev.off()
-
-
-
-
-############ Mean hipp #################
 
 # 1) Z-scores 
 MRS_full <- MRS_full %>%
@@ -423,7 +319,7 @@ final_plot <- final_plot + plot_annotation(tag_levels = "A") &
   theme(legend.box.margin = margin(10, 8, 0, 0))
 
 # 7) Export to your project figures folder
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_glu_four_panels_mean_hipp_1200dpi.tiff"),
@@ -431,6 +327,108 @@ ragg::agg_tiff(file.path(out_dir, "fig_glu_four_panels_mean_hipp_1200dpi.tiff"),
                res = 1200, compression = "lzw")
 print(final_plot)
 dev.off()
+
+
+
+
+
+
+## --- Peak locations (z-scale and raw-scale) for your four panels ---
+# Peaks (vertex x, z-scale only)
+peaks_z <- c(
+  ACC_vs_Hippocampus     = vertex_x(mod_acc_hipp_z,  "hipp_mean_z", "I(hipp_mean_z^2)"),
+  Precuneus_vs_Hippocampus = vertex_x(mod_prec_hipp_z, "hipp_mean_z", "I(hipp_mean_z^2)"),
+  ACC_vs_Thickness       = vertex_x(mod_acc_ct_z,    "ct_ad_z",     "I(ct_ad_z^2)"),
+  Precuneus_vs_Thickness = vertex_x(mod_prec_ct_z,   "ct_ad_z",     "I(ct_ad_z^2)")
+)
+
+round(peaks_z, 3)
+
+
+
+
+
+
+
+
+##### Activaitons #############
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+
+# 1) Create z-score for parietal and keep group
+MRS_full <- MRS_full %>%
+  mutate(
+    act_parietal_z   = as.numeric(scale(activation_parietal_sup_l)),
+    hipp_mean_act_z  = as.numeric(scale(hipp_mean_act_c)),
+    group            = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
+  )
+
+# 2) Common Y-range
+y_rng <- range(MRS_full$m_m_acc, MRS_full$m_m_precuneus, na.rm = TRUE)
+y_lim <- c(floor(y_rng[1] - 0.2), ceiling(y_rng[2] + 0.2))
+
+# 3) Base scatter (now LINEAR by default)
+base_scatter <- function(df, x, y, xlab, ylab,
+                         fit_formula = y ~ x) {  # ← Linear Default
+  ggplot(df, aes(x = .data[[x]], y = .data[[y]])) +
+    geom_point(aes(shape = group), color = "grey30", size = 1.4, alpha = 0.8) +
+    stat_smooth(method = "lm", formula = fit_formula,
+                se = FALSE, color = "black", linewidth = 0.8) +
+    scale_shape_manual(values = c(16, 17, 15), name = "Group",
+                       labels = c("HC","SCD+","MCI")) +
+    labs(x = xlab, y = ylab) +
+    coord_cartesian(ylim = y_lim, clip = "off") +
+    theme_classic(base_size = 12) +
+    theme(
+      legend.position = "right",
+      plot.margin = margin(8, 8, 8, 8)
+    )
+}
+
+# 4) Select needed variables
+df_plot <- MRS_full %>%
+  select(m_m_acc, m_m_precuneus,
+         act_parietal_z, hipp_mean_act_z, group) %>%
+  tidyr::drop_na()
+
+# 5) Create plots (all LINEAR)
+p_acc_parietal <- base_scatter(
+  df_plot, "act_parietal_z", "m_m_acc",
+  "Superior parietal activation", "ACC Glu (mM)"
+)
+
+p_pcn_parietal <- base_scatter(
+  df_plot, "act_parietal_z", "m_m_precuneus",
+  "Superior parietal activation", "Precuneus Glu (mM)"
+)
+
+p_pcn_meanhipp <- base_scatter(
+  df_plot, "hipp_mean_act_z", "m_m_precuneus",
+  "Mean hippocampal activation", "Precuneus Glu (mM)"
+)
+
+# 6) Arrange in one figure with tags A/B/C
+combo <- (p_acc_parietal | p_pcn_parietal | p_pcn_meanhipp) +
+  plot_layout(guides = "collect") +
+  plot_annotation(tag_levels = "A")
+
+combo <- combo & theme(
+  plot.tag = element_text(face = "bold", size = 12),
+  plot.tag.position = c(0.02, 0.98)
+)
+
+# 7) Export high resolution
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+ragg::agg_tiff(file.path(out_dir, "fig_activation_Glu_linear_3panels_1200dpi.tiff"),
+               width = 10, height = 3.2, units = "in",
+               res = 1200, compression = "lzw")
+print(combo)
+dev.off()
+
+
 
 
 
@@ -486,7 +484,7 @@ p_quad_inverted <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
     expand = c(0.02, 0.02)
   ) +
   labs(
-    x = "Precuneus Glu (score z)",
+    x = "Precuneus Glu",
     y = "Memoria free word recall (correct)"
   ) +
   theme_classic(base_size = 12) +
@@ -500,7 +498,7 @@ p_quad_inverted <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
 # -----------------------------
 # Export (1200-DPI TIFF)
 # -----------------------------
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(
@@ -512,410 +510,25 @@ dev.off()
 
 
 
-##### Activaitons #############
-# 1) Z-scores  (parietal activation)
-MRS_full <- MRS_full %>%
-  mutate(
-    act_parietal_z = as.numeric(scale(activation_parietal_sup_l)),
-    group          = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
-  )
 
-# 2) Common Y limits
-y_rng <- range(MRS_full$m_m_acc, MRS_full$m_m_precuneus, na.rm = TRUE)
-y_lim <- c(floor(y_rng[1] - 0.2), ceiling(y_rng[2] + 0.2))
 
-# 3) Helper: accepts a formula (default quadratic).
-base_scatter <- function(df, x, y, xlab, ylab,
-                         fit_formula = y ~ x + I(x^2)) {
-  ggplot(df, aes(x = .data[[x]], y = .data[[y]])) +
-    geom_point(aes(shape = group), color = "grey30", size = 1.4, alpha = 0.8) +
-    stat_smooth(method = "lm", formula = fit_formula,
-                se = FALSE, color = "black", linewidth = 0.8) +
-    scale_shape_manual(values = c(16, 17, 15), name = "Group",
-                       labels = c("HC","SCD+","MCI")) +
-    labs(x = xlab, y = ylab) +
-    coord_cartesian(ylim = y_lim, clip = "off") +
-    theme_classic(base_size = 12) +
-    theme(
-      plot.margin   = margin(8, 8, 8, 8),
-      legend.position = "right",
-      legend.title  = element_text(size = 12),
-      legend.text   = element_text(size = 11)
-    )
+
+
+
+# --- Helpers: vertex of y = b0 + b1*x + b2*x^2 ---
+vertex_x <- function(mod, x_name, x2_name) {
+  b <- coef(mod)
+  stopifnot(all(c(x_name, x2_name) %in% names(b)))
+  -b[[x_name]] / (2 * b[[x2_name]])
 }
 
-# 4) Data 
-df_act <- MRS_full %>%
-  select(m_m_acc, m_m_precuneus, act_parietal_z, group) %>%
-  tidyr::drop_na()
-
-# 5) Two panels (ACC = linear; Precuneus = quadratic)
-p_acc  <- base_scatter(
-  df_act, "act_parietal_z", "m_m_acc",
-  "Superior parietal activation (score z)", "ACC Glu (mM)",
-  fit_formula = y ~ x                    # linear
-)
-
-p_prec <- base_scatter(
-  df_act, "act_parietal_z", "m_m_precuneus",
-  "Superior parietal activation (score z)", "Precuneus Glu (mM)",
-  fit_formula = y ~ x + I(x^2)           # quadratic
-)
-
-# 6) Arrange side-by-side, one legend + A/B tags 
-combo <- (p_acc | p_prec) +
-  plot_layout(guides = "collect") +
-  plot_annotation(tag_levels = "A")
-
-combo <- combo & theme(
-  legend.position = "right",
-  plot.tag = element_text(face = "bold", size = 12),
-  plot.tag.position = c(0.02, 0.98)
-)
-
-# 7) Export
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017"
-if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
-
-ragg::agg_tiff(file.path(out_dir, "fig_glu_vs_actpar_ACClin_PRECquad_1200dpi.tiff"),
-               width = 7.0, height = 2.6, units = "in",
-               res = 1200, compression = "lzw")
-print(combo)
-dev.off()
-
-
-
-
-
-
-#### Moderation #####
-
-
-# -----------------------------
-# 1) Data prep (from your MRS_SM_Prec)
-# -----------------------------
-DATA_REG0 <- MRS_SM_Prec[, c(
-  "m_m_precuneus_c",         # centered Glu (we'll z-score this)
-  "memoria_libre_correcte",  # outcome
-  "hip_l_nor_icv_c"          # centered hippocampal volume (moderator)
-)] |>
-  tidyr::drop_na() |>
-  dplyr::mutate(
-    m_m_precuneus_c        = as.numeric(m_m_precuneus_c),
-    hip_l_nor_icv_c        = as.numeric(hip_l_nor_icv_c),
-    memoria_libre_correcte = as.numeric(memoria_libre_correcte),
-    # z-score the (centered) Glu — same z as from raw
-    mmprec_z               = as.numeric(scale(m_m_precuneus_c))
-  )
-
-# -----------------------------
-# 2) Fit moderation model in z-units
-# -----------------------------
-model_mod_hipp_prec_z <- lm(
-  memoria_libre_correcte ~ mmprec_z + hip_l_nor_icv_c:mmprec_z,
-  data = DATA_REG0
-)
-print(summary(model_mod_hipp_prec_z))
-
-# -----------------------------
-# 3) Prediction grid over z(Glu) with H at mean, ±1 SD
-# -----------------------------
-z_rng  <- range(DATA_REG0$mmprec_z, na.rm = TRUE)
-z_grid <- seq(z_rng[1], z_rng[2], length.out = 200)
-
-H_mean <- mean(DATA_REG0$hip_l_nor_icv_c, na.rm = TRUE)  # ~0 by centering
-H_sd   <- sd(DATA_REG0$hip_l_nor_icv_c,   na.rm = TRUE)
-
-mk_curve <- function(label, Hval) {
-  nd <- data.frame(
-    mmprec_z        = as.numeric(z_grid),
-    hip_l_nor_icv_c = rep(as.numeric(Hval), length(z_grid)),
-    stringsAsFactors = FALSE
-  )
-  pr <- predict(model_mod_hipp_prec_z, newdata = nd, se.fit = TRUE)
-  crit <- qnorm(0.975)
-  data.frame(
-    H_level = label,
-    Xz      = z_grid,
-    Yhat    = pr$fit,
-    lo      = pr$fit - crit * pr$se.fit,
-    hi      = pr$fit + crit * pr$se.fit
-  )
+vertex_xy <- function(mod, x_name, x2_name) {
+  b <- coef(mod)
+  x0 <- -b[[x_name]] / (2 * b[[x2_name]])
+  y0 <- b[[1]] + b[[x_name]] * x0 + b[[x2_name]] * x0^2
+  c(x = x0, y = y0)
 }
 
-df_plot <- dplyr::bind_rows(
-  mk_curve("High (+1 SD)", H_mean + H_sd),
-  mk_curve("Mean (0 SD)",  H_mean),
-  mk_curve("Low (−1 SD)",  H_mean - H_sd)
-)
 
-# -----------------------------
-# 4) Bin raw points into Low/Mean/High by hippocampal volume (±1 SD)
-# -----------------------------
-DATA_REG0 <- DATA_REG0 |>
-  mutate(
-    Group = dplyr::case_when(
-      hip_l_nor_icv_c <= (H_mean - H_sd) ~ "Low (−1 SD)",
-      hip_l_nor_icv_c >= (H_mean + H_sd) ~ "High (+1 SD)",
-      TRUE                                ~ "Mean (0 SD)"
-    )
-  )
-
-# Harmonize factor levels for single legend
-lvl <- c("High (+1 SD)", "Mean (0 SD)", "Low (−1 SD)")
-DATA_REG0$Group <- factor(DATA_REG0$Group, levels = lvl)
-df_plot$Group   <- factor(df_plot$H_level, levels = lvl)
-
-# -----------------------------
-# 5) Axis ticks (Y)
-# -----------------------------
-y_min    <- floor(min(DATA_REG0$memoria_libre_correcte, na.rm = TRUE))
-y_max    <- ceiling(max(DATA_REG0$memoria_libre_correcte, na.rm = TRUE))
-y_breaks <- seq(y_min, y_max, by = 1)
-
-# -----------------------------
-# Plot
-# -----------------------------
-p_mod <- ggplot() +
-  geom_point(
-    data = DATA_REG0,
-    aes(x = mmprec_z, y = memoria_libre_correcte, shape = Group),
-    color = "grey30", size = 1.9, alpha = 0.85
-  ) +
-  geom_ribbon(
-    data = df_plot,
-    aes(x = Xz, ymin = lo, ymax = hi, fill = Group),
-    alpha = 0.12, linewidth = 0
-  ) +
-  geom_line(
-    data = df_plot,
-    aes(x = Xz, y = Yhat, linetype = Group, linewidth = Group),
-    colour = "black"
-  ) +
-  scale_x_reverse() +
-  scale_y_continuous(breaks = y_breaks, limits = c(y_min, y_max),
-                     expand = c(0.02, 0.02)) +
-  
-  # two legends: (1) lines+ribbons, (2) points/shapes
-  scale_linetype_manual(
-    name = "  ",
-    values = c("High (+1 SD)"="dashed","Mean (0 SD)"="dotted","Low (−1 SD)"="solid"),
-    breaks = lvl
-  ) +
-  scale_linewidth_manual(
-    name = "  ",
-    values = c("High (+1 SD)"=0.9,"Mean (0 SD)"=1.0,"Low (−1 SD)"=0.9),
-    breaks = lvl
-  ) +
-  scale_fill_manual(
-    name = "  ",
-    values = c("High (+1 SD)"="grey60","Mean (0 SD)"="grey75","Low (−1 SD)"="grey88"),
-    breaks = lvl
-  ) +
-  scale_shape_manual(
-    name = "",
-    values = c("High (+1 SD)"=16,"Mean (0 SD)"=17,"Low (−1 SD)"=15),
-    breaks = lvl
-  ) +
-  
-  labs(x = "Precuneus Glu (score z)", y = "Memoria free word recall (correct)") +
-  theme_classic(base_size = 12) +
-  theme(
-    legend.text = element_text(size = 11),
-    legend.title = element_text(size = 11),
-    legend.box = "vertical",
-    plot.margin = margin(8, 8, 8, 8)
-  ) +
-  guides(
-    shape = guide_legend(override.aes = list(size = 3, alpha = 1, colour = "grey30")),
-    linewidth = "none"
-  )
-
-# -----------------------------
-# 7) Export (1200-DPI TIFF)
-# -----------------------------
-out_dir <- "C:/Users/okkam/Desktop/labo/article 1/code/Glut_project/figures"
-if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
-
-ragg::agg_tiff(
-  filename = file.path(out_dir, "fig_mod_precuneus_Z_reversed_shapes_lines_1200dpi.tiff"),
-  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
-)
-print(p_mod)
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# -----------------------------
-# 1) Data prep
-# -----------------------------
-DATA_REG1 <- MRS_SM_Prec[, c(
-  "m_m_precuneus_c",             # predictor (centered Glu)
-  "face_name_rappel_differe_spectro",  # outcome
-  "hipp_mean_c"                  # moderator (centered hippocampal volume)
-)] |>
-  tidyr::drop_na() |>
-  dplyr::mutate(
-    m_m_precuneus_c              = as.numeric(m_m_precuneus_c),
-    hipp_mean_c                  = as.numeric(hipp_mean_c),
-    face_name_rappel_differe_spectro = as.numeric(face_name_rappel_differe_spectro),
-    mmprec_z                     = as.numeric(scale(m_m_precuneus_c))
-  )
-
-# -----------------------------
-# 2) Fit moderation model
-# -----------------------------
-model_mod_hipp_prec_mean <- lm(
-  face_name_rappel_differe_spectro ~ mmprec_z + hipp_mean_c:mmprec_z,
-  data = DATA_REG1
-)
-summary(model_mod_hipp_prec_mean)
-
-# -----------------------------
-# 3) Prediction grid over z(Glu)
-# -----------------------------
-z_rng  <- range(DATA_REG1$mmprec_z, na.rm = TRUE)
-z_grid <- seq(z_rng[1], z_rng[2], length.out = 200)
-
-H_mean <- mean(DATA_REG1$hipp_mean_c, na.rm = TRUE)
-H_sd   <- sd(DATA_REG1$hipp_mean_c,   na.rm = TRUE)
-
-mk_curve <- function(label, Hval) {
-  nd <- data.frame(
-    mmprec_z   = as.numeric(z_grid),
-    hipp_mean_c = rep(as.numeric(Hval), length(z_grid))
-  )
-  pr <- predict(model_mod_hipp_prec_mean, newdata = nd, se.fit = TRUE)
-  crit <- qnorm(0.975)
-  data.frame(
-    H_level = label,
-    Xz      = z_grid,
-    Yhat    = pr$fit,
-    lo      = pr$fit - crit * pr$se.fit,
-    hi      = pr$fit + crit * pr$se.fit
-  )
-}
-
-df_plot <- dplyr::bind_rows(
-  mk_curve("High hippocampal volume (+1 SD)", H_mean + H_sd),
-  mk_curve("Mean hippocampal volume (0 SD)",  H_mean),
-  mk_curve("Low hippocampal volume (−1 SD)",  H_mean - H_sd)
-)
-
-# -----------------------------
-# 4) Bin raw points into Low/Mean/High
-# -----------------------------
-DATA_REG1 <- DATA_REG1 |>
-  mutate(
-    Group = dplyr::case_when(
-      hipp_mean_c <= (H_mean - H_sd) ~ "Low hippocampal volume (−1 SD)",
-      hipp_mean_c >= (H_mean + H_sd) ~ "High hippocampal volume (+1 SD)",
-      TRUE                           ~ "Mean hippocampal volume (0 SD)"
-    )
-  )
-
-lvl <- c("High hippocampal volume (+1 SD)",
-         "Mean hippocampal volume (0 SD)",
-         "Low hippocampal volume (−1 SD)")
-DATA_REG1$Group <- factor(DATA_REG1$Group, levels = lvl)
-df_plot$Group   <- factor(df_plot$H_level, levels = lvl)
-
-# -----------------------------
-# 5) Axis ticks (Y)
-# -----------------------------
-y_min    <- floor(min(DATA_REG1$face_name_rappel_differe_spectro, na.rm = TRUE))
-y_max    <- ceiling(max(DATA_REG1$face_name_rappel_differe_spectro, na.rm = TRUE))
-y_breaks <- seq(y_min, y_max, by = 1)
-
-# -----------------------------
-# Plot
-# -----------------------------
-p_mod2 <- ggplot() +
-  geom_point(
-    data = DATA_REG1,
-    aes(x = mmprec_z, y = face_name_rappel_differe_spectro, shape = Group),
-    color = "grey30", size = 1.9, alpha = 0.85
-  ) +
-  geom_ribbon(
-    data = df_plot,
-    aes(x = Xz, ymin = lo, ymax = hi, fill = Group),
-    alpha = 0.12, linewidth = 0
-  ) +
-  geom_line(
-    data = df_plot,
-    aes(x = Xz, y = Yhat, linetype = Group, linewidth = Group),
-    colour = "black"
-  ) +
-  scale_x_reverse() +
-  scale_y_continuous(breaks = y_breaks, limits = c(y_min, y_max),
-                     expand = c(0.02, 0.02)) +
-  scale_linetype_manual(
-    name = " ",
-    values = c("High hippocampal volume (+1 SD)"="dashed",
-               "Mean hippocampal volume (0 SD)"="dotted",
-               "Low hippocampal volume (−1 SD)"="solid"),
-    breaks = lvl
-  ) +
-  scale_linewidth_manual(
-    name = " ",
-    values = c("High hippocampal volume (+1 SD)"=0.9,
-               "Mean hippocampal volume (0 SD)"=1.0,
-               "Low hippocampal volume (−1 SD)"=0.9),
-    breaks = lvl
-  ) +
-  scale_fill_manual(
-    name = " ",
-    values = c("High hippocampal volume (+1 SD)"="grey60",
-               "Mean hippocampal volume (0 SD)"="grey75",
-               "Low hippocampal volume (−1 SD)"="grey88"),
-    breaks = lvl
-  ) +
-  scale_shape_manual(
-    name = "",
-    values = c("High hippocampal volume (+1 SD)"=16,
-               "Mean hippocampal volume (0 SD)"=17,
-               "Low hippocampal volume (−1 SD)"=15),
-    breaks = lvl
-  ) +
-  labs(
-    x = "Precuneus Glu (score z)",
-    y = "Face–Name delayed recall (correct)"
-  ) +
-  theme_classic(base_size = 12) +
-  theme(
-    legend.text = element_text(size = 11),
-    legend.title = element_text(size = 11),
-    legend.box = "vertical",
-    plot.margin = margin(8, 8, 8, 8)
-  ) +
-  guides(
-    shape = guide_legend(override.aes = list(size = 3, alpha = 1, colour = "grey30")),
-    linewidth = "none"
-  )
-p_mod2 <- p_mod2 + theme(legend.position = "None")
-
-# -----------------------------
-# 6) Export
-# -----------------------------
-ragg::agg_tiff(
-  filename = file.path(out_dir, "fig_mod_precuneus_FACE_NAME_1200dpi_nolegend.tiff"),
-  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
-)
-print(p_mod2)
-dev.off()
-
-
-
+# --- Compute peak for your model (Precuneus Glu z -> Memoria libre) ---
+vertex_x (mod_quad, "mmprec_z", "I(mmprec_z^2)")
