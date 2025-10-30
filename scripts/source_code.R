@@ -8,7 +8,7 @@ library(emmeans)
 ## Glutamate Relates to Structural and Functional markers of Disease Severity in early Alzheimer’s disease  ######
 ## Arsenii Prozorov 
 
-
+levels(MRS_full$diagnostic_nick)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
