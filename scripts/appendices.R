@@ -121,6 +121,84 @@ AIC(model_quad_prec_memor)
 
 
 
+###### sensetivity analyses for memory quadratic ############
+
+model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c, data = MRS_M_Prec)
+summary(model_lin_prec_memor)
+AIC(model_lin_prec_memor)
+model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq, data = MRS_M_Prec)
+summary(model_quad_prec_memor)
+AIC(model_quad_prec_memor)
+
+######### remove extreme 2 values ##########
+MRS_M_Prec$prec_z <- scale(MRS_M_Prec$m_m_precuneus_c)
+
+# order by z-score
+ord <- order(MRS_M_Prec$prec_z)
+
+# keep everything except the 2 smallest and 2 largest
+keep_index <- ord[3:(length(ord) - 2)]
+
+# trimmed dataset
+MRS_M_Prec_trim4 <- MRS_M_Prec[keep_index, ]
+
+
+model_lin_prec_memor_trim4  <- lm(memoria_libre_correcte ~ m_m_precuneus_c,
+                                  data = MRS_M_Prec_trim4)
+summary(model_lin_prec_memor_trim4)
+AIC(model_lin_prec_memor_trim4)
+model_quad_prec_memor_trim4 <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq,
+                                  data = MRS_M_Prec_trim4)
+summary(model_quad_prec_memor_trim4)
+AIC(model_quad_prec_memor_trim4)
+
+
+
+
+
+
+# Model 9  memoria ~ ACC Glu  (unchanged dataset)
+# =================================================
+model_lin_acc_memor <- lm(
+  memoria_libre_correcte ~ m_m_acc_c,
+  data = MRS_M_ACC
+)
+summary(model_lin_acc_memor)
+AIC(model_lin_acc_memor)
+
+model_quad_acc_memor <- lm(
+  memoria_libre_correcte ~ m_m_acc_c + m_m_acc_sq,
+  data = MRS_M_ACC
+)
+summary(model_quad_acc_memor)
+AIC(model_quad_acc_memor)
+
+
+# =================================================
+# Model 10 memoria ~ Precuneus Glu  (TRIMMED)
+# =================================================
+model_lin_prec_memor_trim4 <- lm(
+  memoria_libre_correcte ~ m_m_precuneus_c,
+  data = MRS_M_Prec_trim4
+)
+summary(model_lin_prec_memor_trim4)
+AIC(model_lin_prec_memor_trim4)
+
+model_quad_prec_memor_trim4 <- lm(
+  memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq,
+  data = MRS_M_Prec_trim4
+)
+summary(model_quad_prec_memor_trim4)
+AIC(model_quad_prec_memor_trim4)
+
+
+
+
+
+
+
+
+
 ######################################################    Just for SCD+ and MCI groups ################################
 
 

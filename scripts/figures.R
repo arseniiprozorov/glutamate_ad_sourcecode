@@ -434,13 +434,6 @@ dev.off()
 
 
 ### Memoria libre as DV
-# -----------------------------
-# Libraries
-# -----------------------------
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(ragg)
 
 # -----------------------------
 # Data preparation
@@ -467,9 +460,9 @@ y_max    <- ceiling(max(DF$memoria_libre_correcte, na.rm = TRUE))
 y_breaks <- seq(y_min, y_max, by = 1)
 
 # -----------------------------
-# Plot (matches your figure)
+# Plot (non-inverted x-axis)
 # -----------------------------
-p_quad_inverted <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
+p_quad <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
   geom_point(aes(shape = group), color = "grey30", size = 1.8, alpha = 0.85) +
   stat_smooth(
     method = "lm", formula = y ~ x + I(x^2),
@@ -477,14 +470,13 @@ p_quad_inverted <- ggplot(DF, aes(x = mmprec_z, y = memoria_libre_correcte)) +
   ) +
   scale_shape_manual(values = c(16, 17, 15), name = "Group",
                      labels = c("HC", "SCD+", "MCI")) +
-  scale_x_reverse() +
   scale_y_continuous(
     breaks = y_breaks,
     limits = c(y_min, y_max),
     expand = c(0.02, 0.02)
   ) +
   labs(
-    x = "Precuneus Glu",
+    x = "Precuneus Glu (z-score)",
     y = "Memoria free word recall (correct)"
   ) +
   theme_classic(base_size = 12) +
@@ -502,10 +494,10 @@ out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(
-  filename = file.path(out_dir, "fig_memoria_vs_precuneusGluZ_quad_inverted_1200dpi.tiff"),
+  filename = file.path(out_dir, "fig_memoria_vs_precuneusGluZ_quad_1200dpi.tiff"),
   width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
 )
-print(p_quad_inverted)
+print(p_quad)
 dev.off()
 
 
@@ -513,22 +505,77 @@ dev.off()
 
 
 
+#### supplementary ####
+# -----------------------------
+# Data preparation
+# -----------------------------
+DF <- MRS_full %>%
+  transmute(
+    memoria_libre_correcte = as.numeric(memoria_libre_correcte),
+    mmprec_z               = as.numeric(scale(m_m_precuneus)),
+    group                  = factor(diagnostic_nick, levels = c("HC","SCD+","MCI"))
+  ) %>%
+  drop_na()
 
+# -----------------------------
+# Trim: remove 2 lowest and 2 highest z-scores
+# -----------------------------
+ord <- order(DF$mmprec_z)                   # order by z-score
+keep_index <- ord[3:(length(ord) - 2)]      # keep all except 2 smallest & 2 largest
 
-# --- Helpers: vertex of y = b0 + b1*x + b2*x^2 ---
-vertex_x <- function(mod, x_name, x2_name) {
-  b <- coef(mod)
-  stopifnot(all(c(x_name, x2_name) %in% names(b)))
-  -b[[x_name]] / (2 * b[[x2_name]])
-}
+DF_trim4 <- DF[keep_index, ]
 
-vertex_xy <- function(mod, x_name, x2_name) {
-  b <- coef(mod)
-  x0 <- -b[[x_name]] / (2 * b[[x2_name]])
-  y0 <- b[[1]] + b[[x_name]] * x0 + b[[x2_name]] * x0^2
-  c(x = x0, y = y0)
-}
+# -----------------------------
+# Quadratic fit (trimmed data)
+# -----------------------------
+mod_quad_trim4 <- lm(memoria_libre_correcte ~ mmprec_z + I(mmprec_z^2),
+                     data = DF_trim4)
+summary(mod_quad_trim4)
 
+# -----------------------------
+# Axis setup
+# -----------------------------
+y_min    <- floor(min(DF_trim4$memoria_libre_correcte, na.rm = TRUE))
+y_max    <- ceiling(max(DF_trim4$memoria_libre_correcte, na.rm = TRUE))
+y_breaks <- seq(y_min, y_max, by = 1)
 
-# --- Compute peak for your model (Precuneus Glu z -> Memoria libre) ---
-vertex_x (mod_quad, "mmprec_z", "I(mmprec_z^2)")
+# -----------------------------
+# Plot (non-inverted x-axis, extremes removed)
+# -----------------------------
+p_quad_trim4 <- ggplot(DF_trim4, aes(x = mmprec_z, y = memoria_libre_correcte)) +
+  geom_point(aes(shape = group), color = "grey30", size = 1.8, alpha = 0.85) +
+  stat_smooth(
+    method = "lm", formula = y ~ x + I(x^2),
+    se = FALSE, color = "black", linewidth = 0.9
+  ) +
+  scale_shape_manual(values = c(16, 17, 15), name = "Group",
+                     labels = c("CU", "SCD+", "MCI")) +  # HC → CU if you want
+  scale_y_continuous(
+    breaks = y_breaks,
+    limits = c(y_min, y_max),
+    expand = c(0.02, 0.02)
+  ) +
+  labs(
+    x = "Precuneus Glu (z-score)",
+    y = "Memoria free word recall (correct)"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 12),
+    legend.text  = element_text(size = 11),
+    plot.margin  = margin(8, 8, 8, 8)
+  )
+
+# -----------------------------
+# Export (1200-DPI TIFF)
+# -----------------------------
+out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
+if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+
+ragg::agg_tiff(
+  filename = file.path(out_dir, "fig_memoria_vs_precuneusGluZ_quad_trim4_1200dpi.tiff"),
+  width = 6.5, height = 4.3, units = "in", res = 1200, compression = "lzw"
+)
+print(p_quad_trim4)
+dev.off()

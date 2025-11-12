@@ -7,8 +7,6 @@ library(emmeans)
 
 ## Glutamate Relates to Structural and Functional markers of Disease Severity in early Alzheimer’s disease  ######
 ## Arsenii Prozorov 
-
-levels(MRS_full$diagnostic_nick)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
@@ -233,30 +231,6 @@ eta_squared(anova_precuneus)
 
 
 ######################### Polynomial analyses  ####################################
-## Critical point function 
-# ---- Helper: vertex (x-critical point) for y ~ b0 + b1*x + b2*x^2 + covariates ----
-vertex_x <- function(mod, lin, quad) {b <- coef(mod)
-  b1 <- b[[lin]]
-  b2 <- b[[quad]]
-  -b1 / (2 * b2)}
-
-
-
-# ---- Compute for your models (edit names only if your coef labels differ) ----
-vertex_x(model_quad_acc_hipp_mean,
-         lin = "hipp_mean_c", quad = "hipp_mean_sq")
-vertex_x(model_quad_prec_hipp_mean,
-         lin = "hipp_mean_c", quad = "hipp_mean_sq")
-vertex_x(model_quad_acc_thick,
-         lin = "cortical_thickness_adsignature_dickson_c",
-         quad = "cortical_thickness_adsignature_dickson_sq")
-vertex_x(model_quad_prec_thick,
-         lin = "cortical_thickness_adsignature_dickson_c",
-         quad = "cortical_thickness_adsignature_dickson_sq")
-vertex_x(model_quad_prec_memor,
-         lin = "m_m_precuneus_c", quad = "m_m_precuneus_sq")
-
-
 
 #### structure and memory ######
 
