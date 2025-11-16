@@ -366,25 +366,6 @@ summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
 
-# Model 13 associative memory ~  ACC glu
-model_lin_acc_memor <- lm(associative_memory_performance ~ m_m_acc_c, data = MRS_M_ACC)
-summary(model_lin_acc_memor)
-AIC(model_lin_acc_memor)
-model_quad_acc_memor <- lm(associative_memory_performance ~ m_m_acc_c + m_m_acc_sq, data = MRS_M_ACC)
-summary(model_quad_acc_memor)
-AIC(model_quad_acc_memor)
-
-# Model 14 assosiative memory ~ Precuneus glu
-model_lin_prec_memor <- lm(associative_memory_performance ~ m_m_precuneus_c, data = MRS_M_Prec)
-summary(model_lin_prec_memor)
-AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(associative_memory_performance ~ m_m_precuneus_c + m_m_precuneus_sq, data = MRS_M_Prec)
-summary(model_quad_prec_memor)
-AIC(model_quad_prec_memor)
-
-
-
-
 
 
 

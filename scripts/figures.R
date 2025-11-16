@@ -376,7 +376,7 @@ base_scatter <- function(df, x, y, xlab, ylab,
     stat_smooth(method = "lm", formula = fit_formula,
                 se = FALSE, color = "black", linewidth = 0.8) +
     scale_shape_manual(values = c(16, 17, 15), name = "Group",
-                       labels = c("HC","SCD+","MCI")) +
+                       labels = c("CU","SCD+","MCI")) +
     labs(x = xlab, y = ylab) +
     coord_cartesian(ylim = y_lim, clip = "off") +
     theme_classic(base_size = 12) +
@@ -423,7 +423,7 @@ out_dir <- "C:/Users/okkam/Desktop/labo/article 1/Brain/methodes_resultats"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 ragg::agg_tiff(file.path(out_dir, "fig_activation_Glu_linear_3panels_1200dpi.tiff"),
-               width = 10, height = 3.2, units = "in",
+               width = 8, height = 2.56, units = "in",
                res = 1200, compression = "lzw")
 print(combo)
 dev.off()
