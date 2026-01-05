@@ -242,8 +242,7 @@ AIC(model_lin_acc_hipp_mean)
 model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_ACC)
 summary(model_quad_acc_hipp_mean)
 AIC(model_quad_acc_hipp_mean)
-vertex_x(model_quad_acc_hipp_mean,
-         lin = "hipp_mean_c", quad = "hipp_mean_sq")
+
 
 # Model 2 m_m_Precuneus ~ hipp mean 
 model_lin_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c, data = MRS_S_Prec)
@@ -252,8 +251,7 @@ AIC(model_lin_prec_hipp_mean)
 model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq, data = MRS_S_Prec)
 summary(model_quad_prec_hipp_mean)
 AIC(model_quad_prec_hipp_mean)
-vertex_x(model_quad_prec_hipp_mean,
-         lin = "hipp_mean_c", quad = "hipp_mean_sq")
+
 
 # Model 3 m_m_ACC ~ thickness
 model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_ACC)
@@ -262,9 +260,7 @@ AIC(model_lin_acc_thick)
 model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_ACC)
 summary(model_quad_acc_thick)
 AIC(model_quad_acc_thick)
-vertex_x(model_quad_acc_thick,
-         lin = "cortical_thickness_adsignature_dickson_c",
-         quad = "cortical_thickness_adsignature_dickson_sq")
+
 
 # Model 4 m_m_Precuneus ~ thickness
 model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_Prec)
@@ -273,28 +269,26 @@ AIC(model_lin_prec_thick)
 model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_Prec)
 summary(model_quad_prec_thick)
 AIC(model_quad_prec_thick)
-vertex_x(model_quad_prec_thick,
-         lin = "cortical_thickness_adsignature_dickson_c",
-         quad = "cortical_thickness_adsignature_dickson_sq")
+
 
 #### Activaiton ######
 names(MRS_A_ACC)
 names(MRS_A_Prec)
 ## Model 5 ACC ~ activaiton parietal
-model_lin_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l, data = MRS_A_ACC)
+model_lin_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l, data = MRS_A_ACC)
 summary(model_lin_acc_sup_act_rev)
 AIC(model_lin_acc_sup_act_rev)
 
-model_quad_acc_sup_act_rev <- lm(m_m_acc_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_ACC)
+model_quad_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_ACC)
 summary(model_quad_acc_sup_act_rev)
 AIC(model_quad_acc_sup_act_rev)
 
 ## Model 6 recuneus ~ activaiton parietal
-model_lin_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l, data = MRS_A_Prec)
+model_lin_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l, data = MRS_A_Prec)
 summary(model_lin_prec_sup_act_rev)
 AIC(model_lin_prec_sup_act_rev)
 
-model_quad_prec_sup_act_rev <- lm(m_m_precuneus_c ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_Prec)
+model_quad_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_Prec)
 summary(model_quad_prec_sup_act_rev)
 AIC(model_quad_prec_sup_act_rev)
 
