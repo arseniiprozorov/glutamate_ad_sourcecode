@@ -10,7 +10,7 @@ library(emmeans)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
-import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017/import_data_arsenii_20250609_hippR.xlsx")
+import_data_arsenii_20250609_hippR <- read_excel("/Users/samira/Desktop/import_data_arsenii_20250609_hippR.xlsx")
 MRS_full <- import_data_arsenii_20250609_hippR
 
 # Clean the column names
