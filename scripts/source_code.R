@@ -10,12 +10,12 @@ library(emmeans)
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
 
-import_data_arsenii_20250609_hippR <- read_excel("/Users/samira/Desktop/import_data_arsenii_20250609_hippR.xlsx")
+import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017/import_data_arsenii_20250609_hippR.xlsx")
 MRS_full <- import_data_arsenii_20250609_hippR
 
-# Clean the column names
+# Clean the column name
 MRS_full <- janitor::clean_names(MRS_full)
-
+names(MRS_full)
 # Convertir  en numérique
 MRS_full$education <- as.numeric(MRS_full$education)
 MRS_full$moca_corr_spectro <- as.numeric(MRS_full$moca_corr_spectro)
