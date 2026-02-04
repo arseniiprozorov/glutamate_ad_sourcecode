@@ -4,8 +4,7 @@ install.packages("mediation")
 library(mediation)
 vignette("mediation")
 names(MRS_full)
-
-
+citation("mediation")
 
 
 ################################# DATA PREPARATION #####################
@@ -22,7 +21,7 @@ mediation_combined$mean_glu <- rowMeans(scale(mediation_combined[, c("m_m_precun
 
 
 ###############################  GLOBAL COMBINED MODEL ###########################
-# Path: Mean Structure -> Mean Glu -> Mean Activation
+# Mean Structure -> Mean Glu -> Mean Activation
 # M ~ X
 model_m_comb <- lm(mean_glu ~ mean_structure, data = mediation_combined)
 summary(model_m_comb)
@@ -37,6 +36,16 @@ med_comb <- mediate(model_m_comb, model_y_comb,
                     boot = TRUE, sims = 5000)
 summary(med_comb)
 plot(med_comb)
+
+
+
+
+
+
+
+
+
+
 
 
 ################### DECOMPOSING ACTIVATION (Y) ######################
@@ -273,131 +282,6 @@ plot(med_g8)
 
 
 
-
-
-
-
-
-
-
-
-
-
-library(mediation)
-library(mgcv) # Essential for gam models
-set.seed(2025)
-
-# ==============================================================================
-# 5. FULLY GRANULAR MODELS (USING GAM / NON-LINEAR)
-# ==============================================================================
-
-# --- GROUP A: HIPPOCAMPAL VOLUME AS PREDICTOR (X = hipp_mean) ---
-
-## 5.1 Hipp Volume -> Precuneus Glu -> Parietal Activation
-# M ~ s(X)
-model_m_g1 <- gam(m_m_precuneus ~ s(hipp_mean), data = mediation_combined)
-summary(model_m_g1)
-
-# Y ~ s(X) + s(M)
-model_y_g1 <- gam(activation_parietal_sup_l ~ s(hipp_mean) + s(m_m_precuneus), data = mediation_combined)
-summary(model_y_g1)
-
-# Mediate (boot = TRUE is required for GAMs)
-med_g1 <- mediate(model_m_g1, model_y_g1, 
-                  treat = "hipp_mean", mediator = "m_m_precuneus", 
-                  boot = TRUE, sims = 1000)
-summary(med_g1)
-plot(med_g1)
-
-
-## 5.2 Hipp Volume -> Precuneus Glu -> Hippocampal Activation
-# M ~ s(X)
-model_m_g2 <- gam(m_m_precuneus ~ s(hipp_mean), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g2 <- gam(hipp_mean_act ~ s(hipp_mean) + s(m_m_precuneus), data = mediation_combined)
-
-med_g2 <- mediate(model_m_g2, model_y_g2, 
-                  treat = "hipp_mean", mediator = "m_m_precuneus", 
-                  boot = TRUE, sims = 1000)
-summary(med_g2)
-
-
-## 5.3 Hipp Volume -> ACC Glu -> Parietal Activation
-# M ~ s(X)
-model_m_g3 <- gam(m_m_acc ~ s(hipp_mean), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g3 <- gam(activation_parietal_sup_l ~ s(hipp_mean) + s(m_m_acc), data = mediation_combined)
-
-med_g3 <- mediate(model_m_g3, model_y_g3, 
-                  treat = "hipp_mean", mediator = "m_m_acc", 
-                  boot = TRUE, sims = 1000)
-summary(med_g3)
-
-
-## 5.4 Hipp Volume -> ACC Glu -> Hippocampal Activation
-# M ~ s(X)
-model_m_g4 <- gam(m_m_acc ~ s(hipp_mean), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g4 <- gam(hipp_mean_act ~ s(hipp_mean) + s(m_m_acc), data = mediation_combined)
-
-med_g4 <- mediate(model_m_g4, model_y_g4, 
-                  treat = "hipp_mean", mediator = "m_m_acc", 
-                  boot = TRUE, sims = 1000)
-summary(med_g4)
-
-
-# --- GROUP B: CORTICAL THICKNESS AS PREDICTOR (X = cortical_thickness) ---
-
-## 5.5 Cort Thickness -> Precuneus Glu -> Parietal Activation
-# M ~ s(X)
-model_m_g5 <- gam(m_m_precuneus ~ s(cortical_thickness_adsignature_dickson), data = mediation_combined)
-summary(model_m_g5)
-
-# Y ~ s(X) + s(M)
-model_y_g5 <- gam(activation_parietal_sup_l ~ s(cortical_thickness_adsignature_dickson) + s(m_m_precuneus), data = mediation_combined)
-summary(model_y_g5)
-
-med_g5 <- mediate(model_m_g5, model_y_g5, 
-                  treat = "cortical_thickness_adsignature_dickson", mediator = "m_m_precuneus", 
-                  boot = TRUE, sims = 1000)
-summary(med_g5)
-plot(med_g5)
-
-
-## 5.6 Cort Thickness -> Precuneus Glu -> Hippocampal Activation
-# M ~ s(X)
-model_m_g6 <- gam(m_m_precuneus ~ s(cortical_thickness_adsignature_dickson), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g6 <- gam(hipp_mean_act ~ s(cortical_thickness_adsignature_dickson) + s(m_m_precuneus), data = mediation_combined)
-
-med_g6 <- mediate(model_m_g6, model_y_g6, 
-                  treat = "cortical_thickness_adsignature_dickson", mediator = "m_m_precuneus", 
-                  boot = TRUE, sims = 1000)
-summary(med_g6)
-
-
-## 5.7 Cort Thickness -> ACC Glu -> Parietal Activation
-# M ~ s(X)
-model_m_g7 <- gam(m_m_acc ~ s(cortical_thickness_adsignature_dickson), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g7 <- gam(activation_parietal_sup_l ~ s(cortical_thickness_adsignature_dickson) + s(m_m_acc), data = mediation_combined)
-
-med_g7 <- mediate(model_m_g7, model_y_g7, 
-                  treat = "cortical_thickness_adsignature_dickson", mediator = "m_m_acc", 
-                  boot = TRUE, sims = 1000)
-summary(med_g7)
-
-
-## 5.8 Cort Thickness -> ACC Glu -> Hippocampal Activation
-# M ~ s(X)
-model_m_g8 <- gam(m_m_acc ~ s(cortical_thickness_adsignature_dickson), data = mediation_combined)
-# Y ~ s(X) + s(M)
-model_y_g8 <- gam(hipp_mean_act ~ s(cortical_thickness_adsignature_dickson) + s(m_m_acc), data = mediation_combined)
-
-med_g8 <- mediate(model_m_g8, model_y_g8, 
-                  treat = "cortical_thickness_adsignature_dickson", mediator = "m_m_acc", 
-                  boot = TRUE, sims = 1000)
-summary(med_g8)
 
 
 
