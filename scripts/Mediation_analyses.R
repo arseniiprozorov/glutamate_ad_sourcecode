@@ -39,11 +39,30 @@ plot(med_comb)
 
 
 
+install.packages("robmed")
+library(robmed)
 
+#fit_mediation(object,x,y,m,covariates = NULL,method = c("regression", "covariance"),robust = TRUE,
+#family = "gaussian",model = c("parallel", "serial"),contrast = FALSE,fit_yx = TRUE,control = NULL,)
 
+library(robmed)
 
+# 1. Fit the robust mediation model
+# We map your variables: 
+# X (Treat) = mean_structure
+# M (Mediator) = mean_glu
+# Y (Outcome) = mean_activation
 
+rob_mediation <- fit_mediation(mediation_combined,
+  x = "mean_structure",
+  y = "mean_activation",
+  m = "mean_glu")
+summary(rob_mediation)
 
+# 3. Test for significance (Indirect Effect)
+# This replaces the 'boot = TRUE' step from the previous package.
+rob_test <- test_mediation(rob_mediation)
+summary(rob_test)
 
 
 
