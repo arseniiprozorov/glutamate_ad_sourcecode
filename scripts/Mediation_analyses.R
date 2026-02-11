@@ -306,5 +306,146 @@ plot(med_g8)
 
 
 
+library(mediation)
+
+################################# 1. DATA PREPARATION #####################
+
+# Select the specific columns present in your dataframe
+# We use "face_name_rappel_differe_spectro" as the 3rd memory variable
+vars_to_keep <- c(
+  "hipp_mean",                                # Structure 1
+  "cortical_thickness_adsignature_dickson",   # Structure 2
+  "hipp_mean_act",                            # Activation 1
+  "activation_parietal_sup_l",                # Activation 2
+  "memoria_libre_correcte",                   # Memory 1
+  "associative_memory_performance",           # Memory 2
+  "face_name_rappel_differe_spectro",         # Memory 3
+  "sex", 
+  "age_spectro"
+)
+
+# Create temporary dataframe and remove missing rows
+temp_df <- MRS_full[, vars_to_keep] |> na.omit()
+
+# --- Create Composite Variables ---
+
+# IV: Mean Structure (Standardized Mean of hipp_mean + cortical_thickness)
+temp_df$mean_structure <- rowMeans(scale(temp_df[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
+
+# Mediator: Mean Activation (Standardized Mean of hipp_mean_act + activation_parietal)
+temp_df$mean_activation <- rowMeans(scale(temp_df[, c("hipp_mean_act", "activation_parietal_sup_l")]), na.rm = TRUE)
 
 
+############################### 2. MEDIATION ANALYSIS ###########################
+
+# --- Step A: Mediator Model (Path a: X -> M) ---
+# This model is the same for all 3 outcomes
+model_m <- lm(mean_activation ~ mean_structure, data = temp_df)
+summary(model_m) # Check if Structure significantly predicts Activation
+
+
+# --- ANALYSIS 1: Memoria Libre Correcte ---
+# Path b & c' (M -> Y and X -> Y)
+model_y1 <- lm(memoria_libre_correcte ~ mean_structure + mean_activation, data = temp_df)
+
+# Run Mediation
+med_1 <- mediate(model_m, model_y1, treat = "mean_structure", mediator = "mean_activation", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: MEMORIA LIBRE CORRECTE ##########")
+summary(med_1)
+
+
+# --- ANALYSIS 2: Associative Memory Performance ---
+model_y2 <- lm(associative_memory_performance ~ mean_structure + mean_activation, data = temp_df)
+
+med_2 <- mediate(model_m, model_y2, treat = "mean_structure", mediator = "mean_activation", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: ASSOCIATIVE MEMORY ##########")
+summary(med_2)
+
+
+# --- ANALYSIS 3: Face Name Rappel Differe (3rd Memory) ---
+model_y3 <- lm(face_name_rappel_differe_spectro ~ mean_structure + mean_activation, data = temp_df)
+
+med_3 <- mediate(model_m, model_y3, treat = "mean_structure", mediator = "mean_activation", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: FACE NAME RAPPEL ##########")
+summary(med_3)
+
+
+
+
+
+
+
+
+
+################################# 1. DATA PREPARATION #####################
+
+# 1. Select the specific columns
+vars_to_keep <- c(
+  # --- Independent Variable (Glutamate) ---
+  "m_m_precuneus", 
+  "m_m_acc",
+  
+  # --- Mediator (Structure) ---
+  "hipp_mean",                                # Note: You can swap this for 'hip_l_nor_icv' if you want Left only
+  "cortical_thickness_adsignature_dickson",   
+  
+  # --- Outcomes (Memory) ---
+  "memoria_libre_correcte",                   # Memory 1 (Verbal)
+  "associative_memory_performance",           # Memory 2
+  "face_name_rappel_differe_spectro",         # Memory 3 (Visual)
+  
+  # --- Covariates ---
+  "sex", 
+  "age_spectro"
+)
+
+# 2. Create temporary dataframe and remove missing rows
+temp_df <- MRS_full[, vars_to_keep] |> na.omit()
+
+# 3. Create Composite Variables (Standardized)
+
+# IV: Mean Glutamate (Average of Precuneus + ACC)
+temp_df$mean_glu <- rowMeans(scale(temp_df[, c("m_m_precuneus", "m_m_acc")]), na.rm = TRUE)
+
+# Mediator: Mean Structure (Average of Hippocampus + Cortical Thickness)
+temp_df$mean_structure <- rowMeans(scale(temp_df[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
+
+
+############################### 2. MEDIATION ANALYSIS ###########################
+
+# --- Step A: Mediator Model (Path a: Glu -> Structure) ---
+# Does Glutamate predict Structural Integrity?
+model_m_struct <- lm(mean_structure ~ mean_glu, data = temp_df)
+print("########## PATH A: GLU -> STRUCTURE ##########")
+summary(model_m_struct) 
+
+
+# --- ANALYSIS 1: MEMORIA LIBRE (Verbal) ---
+# Path b & c' (Structure -> Memory, controlling for Glu)
+model_y1 <- lm(memoria_libre_correcte ~ mean_structure + mean_glu, data = temp_df)
+
+med_1 <- mediate(model_m_struct, model_y1, treat = "mean_glu", mediator = "mean_structure", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: MEMORIA LIBRE MEDIATION ##########")
+summary(med_1)
+
+
+# --- ANALYSIS 2: ASSOCIATIVE MEMORY ---
+model_y2 <- lm(associative_memory_performance ~ mean_structure + mean_glu, data = temp_df)
+
+med_2 <- mediate(model_m_struct, model_y2, treat = "mean_glu", mediator = "mean_structure", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: ASSOCIATIVE MEMORY MEDIATION ##########")
+summary(med_2)
+
+
+# --- ANALYSIS 3: FACE NAME RAPPEL (Visual) ---
+model_y3 <- lm(face_name_rappel_differe_spectro ~ mean_structure + mean_glu, data = temp_df)
+
+med_3 <- mediate(model_m_struct, model_y3, treat = "mean_glu", mediator = "mean_structure", boot = TRUE, sims = 1000)
+
+print("########## RESULTS: FACE NAME RAPPEL MEDIATION ##########")
+summary(med_3)
