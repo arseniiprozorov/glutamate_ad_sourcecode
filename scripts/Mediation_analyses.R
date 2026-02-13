@@ -5,7 +5,7 @@ library(mediation)
 vignette("mediation")
 names(MRS_full)
 citation("mediation")
-
+packageVersion("mediation")
 
 ################################# DATA PREPARATION #####################
 # Select raw columns
@@ -40,7 +40,8 @@ plot(med_comb)
 
 #### With robmed package ####
 library(robmed)
-
+citation("robmed")
+packageVersion("robmed")
 
 rob_mediation <- fit_mediation(mediation_combined,
   x = "mean_structure",
@@ -55,6 +56,9 @@ summary(rob_test)
 
 ######## With WRS2 package ##########
 library(WRS2)
+citation("WRS2")
+packageVersion("WRS2")
+
 x <- mediation_combined$mean_structure
 y <- mediation_combined$mean_activation
 med <- mediation_combined$mean_glu

@@ -371,3 +371,26 @@ AIC(model_quad_prec_memor)
 
 
 
+
+#### mediation control sex ############
+
+
+# 1. Mediator Model (M ~ X + Covariate)
+# Add '+ sex' here to see if X predicts M while holding sex constant
+model_m_comb <- lm(mean_glu ~ mean_structure + sex, data = mediation_combined)
+summary(model_m_comb)
+
+# 2. Outcome Model (Y ~ X + M + Covariate)
+# Add '+ sex' here to see if M predicts Y while holding sex constant
+model_y_comb <- lm(mean_activation ~ mean_structure + mean_glu + sex, data = mediation_combined)
+summary(model_y_comb)
+
+# 3. Mediate Function
+# No changes needed here! The function automatically detects the covariates 
+# from the model objects above.
+med_comb <- mediate(model_m_comb, model_y_comb, 
+                    treat = "mean_structure", mediator = "mean_glu", 
+                    boot = TRUE, sims = 5000)
+summary(med_comb)
+plot(med_comb)
+

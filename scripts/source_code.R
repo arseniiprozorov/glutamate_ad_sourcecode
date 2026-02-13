@@ -363,3 +363,61 @@ AIC(model_quad_prec_memor)
 
 
 
+############## Mediation analysis ##################
+library(mediation)
+# Select raw columns
+mediation_combined <- MRS_full[, c("m_m_precuneus", "m_m_acc", 
+                                   "hipp_mean", "cortical_thickness_adsignature_dickson", 
+                                   "hipp_mean_act", "activation_parietal_sup_l", 
+                                   "sex", "age_spectro")] |> na.omit()
+# Create composite "mean" variables
+mediation_combined$mean_structure <- rowMeans(scale(mediation_combined[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
+mediation_combined$mean_activation <- rowMeans(scale(mediation_combined[, c("hipp_mean_act", "activation_parietal_sup_l")]), na.rm = TRUE)
+mediation_combined$mean_glu <- rowMeans(scale(mediation_combined[, c("m_m_precuneus", "m_m_acc")]), na.rm = TRUE)
+
+
+
+###############################  GLOBAL COMBINED MODEL ###########################
+# Mean Structure -> Mean Glu -> Mean Activation
+# M ~ X
+model_m_comb <- lm(mean_glu ~ mean_structure, data = mediation_combined)
+summary(model_m_comb)
+
+# Y ~ X + M
+model_y_comb <- lm(mean_activation ~ mean_structure + mean_glu, data = mediation_combined)
+summary(model_y_comb)
+
+# Mediate
+med_comb <- mediate(model_m_comb, model_y_comb, 
+                    treat = "mean_structure", mediator = "mean_glu", 
+                    boot = TRUE, sims = 5000)
+summary(med_comb)
+plot(med_comb)
+
+
+#### With robmed package ####
+library(robmed)
+
+
+rob_mediation <- fit_mediation(mediation_combined,
+                               x = "mean_structure",
+                               y = "mean_activation",
+                               m = "mean_glu")
+summary(rob_mediation)
+
+rob_test <- test_mediation(rob_mediation)
+summary(rob_test)
+
+
+
+######## With WRS2 package ##########
+library(WRS2)
+x <- mediation_combined$mean_structure
+y <- mediation_combined$mean_activation
+med <- mediation_combined$mean_glu
+zmediate_results <- ZYmediate(x, y, med, nboot = 5000, alpha = 0.05, kappa = 0.05)
+zmediate_results
+
+
+
+
