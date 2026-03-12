@@ -1,0 +1,57 @@
+
+Call:
+lm(formula = mean_glu ~ mean_structure, data = mediation_combined)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.78175 -0.48681  0.02475  0.40612  1.75839 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    4.793e-16  7.781e-02   0.000        1    
+mean_structure 5.467e-01  9.029e-02   6.055 3.57e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.7299 on 86 degrees of freedom
+Multiple R-squared:  0.2989,	Adjusted R-squared:  0.2907 
+F-statistic: 36.66 on 1 and 86 DF,  p-value: 3.575e-08
+
+
+Call:
+lm(formula = mean_activation ~ mean_structure + mean_glu, data = mediation_combined)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.54546 -0.54319 -0.06634  0.61229  2.04670 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)   
+(Intercept)    -2.274e-16  8.488e-02   0.000  1.00000   
+mean_structure -2.022e-01  1.176e-01  -1.719  0.08930 . 
+mean_glu        3.774e-01  1.176e-01   3.208  0.00188 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.7962 on 85 degrees of freedom
+Multiple R-squared:  0.108,	Adjusted R-squared:  0.08705 
+F-statistic: 5.148 on 2 and 85 DF,  p-value: 0.007757
+
+
+Causal Mediation Analysis 
+
+Nonparametric Bootstrap Confidence Intervals with the Percentile Method
+
+                  Estimate 95% CI Lower 95% CI Upper p-value    
+ACME             0.2063224    0.0881436    0.3477711  <2e-16 ***
+ADE             -0.2021640   -0.4326216    0.0151999  0.0716 .  
+Total Effect     0.0041584   -0.2153574    0.1933506  0.9728    
+Prop. Mediated  49.6156829  -31.2724751   30.2773284  0.9728    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Sample Size Used: 88 
+
+
+Simulations: 5000 
+
