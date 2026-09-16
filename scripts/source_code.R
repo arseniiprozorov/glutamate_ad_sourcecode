@@ -254,41 +254,43 @@ AIC(model_quad_prec_hipp_mean)
 
 
 # Model 3 m_m_ACC ~ thickness
-model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_ACC)
+model_lin_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + age_spectro_c + sex, data = MRS_S_ACC)
 summary(model_lin_acc_thick)
 AIC(model_lin_acc_thick)
-model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_ACC)
+model_quad_acc_thick <- lm(m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex, data = MRS_S_ACC)
 summary(model_quad_acc_thick)
 AIC(model_quad_acc_thick)
 
 
 # Model 4 m_m_Precuneus ~ thickness
-model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c, data = MRS_S_Prec)
+model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + age_spectro_c + sex, data = MRS_S_Prec)
 summary(model_lin_prec_thick)
 AIC(model_lin_prec_thick)
-model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_S_Prec)
+model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex, data = MRS_S_Prec)
 summary(model_quad_prec_thick)
 AIC(model_quad_prec_thick)
+
+anova(model_lin_prec_thick, model_quad_prec_thick)
 
 
 #### Activaiton ######
 names(MRS_A_ACC)
 names(MRS_A_Prec)
 ## Model 5 ACC ~ activaiton parietal
-model_lin_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l, data = MRS_A_ACC)
+model_lin_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l + age_spectro_c + sex, data = MRS_A_ACC)
 summary(model_lin_acc_sup_act_rev)
 AIC(model_lin_acc_sup_act_rev)
 
-model_quad_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_ACC)
+model_quad_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + age_spectro_c + sex, data = MRS_A_ACC)
 summary(model_quad_acc_sup_act_rev)
 AIC(model_quad_acc_sup_act_rev)
 
 ## Model 6 recuneus ~ activaiton parietal
-model_lin_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l, data = MRS_A_Prec)
+model_lin_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l + age_spectro_c + sex, data = MRS_A_Prec)
 summary(model_lin_prec_sup_act_rev)
 AIC(model_lin_prec_sup_act_rev)
 
-model_quad_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l + activation_parietal_sup_l_sq, data = MRS_A_Prec)
+model_quad_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l + activation_parietal_sup_l_sq + age_spectro_c + sex, data = MRS_A_Prec)
 summary(model_quad_prec_sup_act_rev)
 AIC(model_quad_prec_sup_act_rev)
 
@@ -417,7 +419,6 @@ y <- mediation_combined$mean_activation
 med <- mediation_combined$mean_glu
 zmediate_results <- ZYmediate(x, y, med, nboot = 5000, alpha = 0.05, kappa = 0.05)
 zmediate_results
-
 
 
 
