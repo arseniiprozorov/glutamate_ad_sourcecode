@@ -1,118 +1,4 @@
-library(here)
-source(file.path("scripts", "source_code.R"))
-ls()
-names(MRS_full)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(patchwork)
-library(ragg)
 
-#### Bar plot #####
-
-# long format for ACC and Precuneus
-long_data_mM <- MRS_full %>%
-  dplyr::select(diagnostic_nick, m_m_acc, m_m_precuneus) %>%
-  dplyr::rename(ACC = m_m_acc, Precuneus = m_m_precuneus) %>%
-  tidyr::pivot_longer(c(ACC, Precuneus),
-                      names_to = "Region",
-                      values_to = "Value")
-
-#  summarise both regions 
-sum_dat <- long_data_mM %>%
-  filter(Region %in% c("ACC","Precuneus")) %>%
-  group_by(Region, diagnostic_nick) %>%
-  summarise(
-    mean = mean(Value, na.rm = TRUE),
-    se   = sd(Value, na.rm = TRUE)/sqrt(sum(!is.na(Value))),
-    ci   = qt(0.975, df = max(sum(!is.na(Value))-1,1)) * se,
-    .groups = "drop"
-  ) %>%
-  mutate(xi = as.numeric(factor(diagnostic_nick, levels=c("HC","SCD+","MCI"))))
-
-#  helper 
-make_plot <- function(region_name, y_label, sig_xmin, sig_xmax, y_pos, star_label="*",
-                      y_min = 13, y_max = 16) {
-  
-  dat <- sum_dat %>% filter(Region == region_name)
-  
-  sig_df <- data.frame(
-    xmin = sig_xmin,
-    xmax = sig_xmax,
-    y = y_pos,
-    label = rep(star_label, length(y_pos))
-  )
-  
-  ggplot(dat, aes(x = xi, fill = diagnostic_nick)) +
-    # bars from baseline to mean
-    geom_rect(aes(xmin = xi - 0.35,
-                  xmax = xi + 0.35,
-                  ymin = y_min,
-                  ymax = mean,
-                  fill = diagnostic_nick),
-              colour = "black") +
-    # error bars (95% CI)
-    geom_errorbar(aes(x = xi, ymin = mean, ymax = mean + ci),
-                  width = 0.2, color = "black") +
-    # significance bars
-    geom_segment(data = sig_df,
-                 aes(x = xmin, xend = xmax, y = y, yend = y),
-                 inherit.aes = FALSE, linewidth = 0.8) +
-    geom_text(data = sig_df,
-              aes(x = (xmin + xmax)/2, y = y + 0.05, label = label),
-              inherit.aes = FALSE, size = 5) +
-    scale_fill_manual(values = c("HC"="#C8C8C8","SCD+"="#9A9A9A","MCI"="#6B6B6B"),
-                      name = "Group") +
-    scale_x_continuous(breaks = 1:3,
-                       labels = c("HC","SCD+","MCI"),
-                       limits = c(0.6,3.4),
-                       expand = c(0,0)) +
-    scale_y_continuous(breaks = seq(y_min, y_max, 1),
-                       limits = c(y_min, y_max),
-                       expand = c(0,0)) +
-    labs(x = "", y = y_label) +
-    theme_classic(base_size = 14) +
-    theme(
-      axis.title.y = element_text(size=16),
-      axis.text.x  = element_text(size=14),
-      axis.text.y  = element_text(size=14),
-      plot.margin  = margin(t=26, r=18, b=10, l=22),
-      legend.position = "bottom"
-    )
-}
-
-#  build panels  
-p_acc  <- make_plot("ACC","ACC Glu (mM)",
-                    sig_xmin = c(1,1), sig_xmax = c(2,3),
-                    y_pos = c(15.5, 15.7))
-
-p_prec <- make_plot("Precuneus","Precuneus Glu (mM)",
-                    sig_xmin = 1, sig_xmax = 3,
-                    y_pos = 15.8)
-
-panel <- p_acc + p_prec + plot_layout(guides = "collect") &
-  theme(legend.position = "right")
-
-# add A/B tags
-panel <- panel + plot_annotation(tag_levels = "A") &
-  theme(plot.tag = element_text(face = "bold", size = 12),
-        plot.tag.position = c(0.02, 0.98))
-
-#  export  
-out_dir <- "C:\\Users\\okkam\\Desktop\\labo\\article 1\\rencontre_Sylvie_20251017"
-if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
-
-ragg::agg_tiff(file.path(out_dir, "fig_bar_ACC_Precuneus_panel_1200dpi.tiff"),
-               width = 7, height = 4, units = "in", res = 1200, compression = "lzw")
-print(panel)
-dev.off()
-
-
-
-
-
-
-#### Violin plot version #######################################################
 
 library(dplyr)
 library(tidyr)
@@ -245,9 +131,11 @@ dev.off()
 
 
 
+#  ggplot 
+ggplot(MRS_S_Prec, aes(x = cortical_thickness_adsignature_dickson_c, y = m_m_precuneus)) +
+  geom_point(color = "grey40") + stat_smooth(method = "lm", formula = y ~ x + I(x^2), color = "red") +
+  scale_x_reverse() + theme_classic()
 
-####### Structure and Memory #####################
-##########  quadratic structure  ##########
 
 # 1) Z-scores 
 MRS_full <- MRS_full %>%
@@ -329,20 +217,6 @@ print(final_plot)
 dev.off()
 
 
-
-
-
-
-## --- Peak locations (z-scale and raw-scale) for your four panels ---
-# Peaks (vertex x, z-scale only)
-peaks_z <- c(
-  ACC_vs_Hippocampus     = vertex_x(mod_acc_hipp_z,  "hipp_mean_z", "I(hipp_mean_z^2)"),
-  Precuneus_vs_Hippocampus = vertex_x(mod_prec_hipp_z, "hipp_mean_z", "I(hipp_mean_z^2)"),
-  ACC_vs_Thickness       = vertex_x(mod_acc_ct_z,    "ct_ad_z",     "I(ct_ad_z^2)"),
-  Precuneus_vs_Thickness = vertex_x(mod_prec_ct_z,   "ct_ad_z",     "I(ct_ad_z^2)")
-)
-
-round(peaks_z, 3)
 
 
 
@@ -579,3 +453,7 @@ ragg::agg_tiff(
 )
 print(p_quad_trim4)
 dev.off()
+
+
+
+

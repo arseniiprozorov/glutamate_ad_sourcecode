@@ -355,10 +355,10 @@ AIC(model_quad_acc_memor)
 anova(model_lin_acc_memor, model_quad_acc_memor)
 
 # Model 10 memoria ~ Precuneus Glu
-model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + age_spectro_c + sex + education + diagnostic_nick, data = MRS_M_Prec)
+model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c , data = MRS_M_Prec)
 summary(model_lin_prec_memor)
 AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq+ age_spectro_c + sex + education + diagnostic_nick, data = MRS_M_Prec)
+model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq , data = MRS_M_Prec)
 summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
@@ -383,101 +383,15 @@ AIC(model_quad_prec_memor)
 
 
 
-## Sensetivity analysis
-# Install the package if you haven't already
-# install.packages("robustbase")
 
-library(readxl)
-library(janitor)
-library(robustbase)
-
-# 1. Reload the raw, untouched dataset
-MRS_raw <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017/import_data_arsenii_20250609_hippR.xlsx") |>
-  clean_names()
-
-# 2. Type conversions and grouping (forcing numeric to avoid errors)
-MRS_raw$education <- as.numeric(MRS_raw$education)
-MRS_raw$age_spectro <- as.numeric(MRS_raw$age_spectro)
-MRS_raw$cortical_thickness_adsignature_dickson <- as.numeric(MRS_raw$cortical_thickness_adsignature_dickson)
-MRS_raw$m_m_precuneus <- as.numeric(MRS_raw$m_m_precuneus)
-
-# Regrouper HC et SCD -> HC
-MRS_raw$diagnostic_nick <- ifelse(MRS_raw$diagnostic_nick %in% c("HC", "SCD"), "HC", MRS_raw$diagnostic_nick)
-MRS_raw$diagnostic_nick <- factor(MRS_raw$diagnostic_nick, levels = c("HC", "SCD+", "MCI"))
-MRS_raw$sex <- as.factor(MRS_raw$sex)
-
-# 3. Mean-centering and generating the quadratic term
-MRS_raw$age_spectro_c <- scale(MRS_raw$age_spectro, center = TRUE, scale = FALSE)[, 1]
-MRS_raw$cortical_thickness_c <- scale(MRS_raw$cortical_thickness_adsignature_dickson, center = TRUE, scale = FALSE)[, 1]
-MRS_raw$cortical_thickness_sq <- MRS_raw$cortical_thickness_c^2
-
-# 4. Create the clean subset for this specific analysis
-# We use na.omit() so both models run on the exact same participants
-MRS_S_Prec_raw <- MRS_raw[, c(
-  "m_m_precuneus", "cortical_thickness_c", "cortical_thickness_sq",
-  "age_spectro_c", "sex", "education", "diagnostic_nick"
-)] |> na.omit()
-
-# 5. Run the Robust Linear Model (for baseline comparison)
-model_lin_robust <- lmrob(
-  m_m_precuneus ~ cortical_thickness_c + age_spectro_c + sex + education + diagnostic_nick, 
-  data = MRS_S_Prec_raw
-)
-
-# 6. Run the Robust Quadratic Model (MM-estimation)
-model_quad_robust <- lmrob(
-  m_m_precuneus ~ cortical_thickness_c + cortical_thickness_sq + age_spectro_c + sex + education + diagnostic_nick, 
-  data = MRS_S_Prec_raw
-)
-
-# 7. View Results
-print("--- ROBUST QUADRATIC MODEL SUMMARY ---")
-summary(model_quad_robust)
-
-# 8. Direct robust F-test (Wald test) between linear and quadratic models
-print("--- ROBUST ANOVA (Linear vs Quadratic) ---")
-anova(model_lin_robust, model_quad_robust)
-
-
-
-
-
-## Sensetivity analysis
-
-# 1. Inspect Observation 92 to see exactly how extreme their glutamate is
-print("--- OBSERVATION 92 DATA ---")
-MRS_S_Prec_raw[92, ]
-
-# 2. Create a new dataset excluding ONLY Observation 92
-MRS_raw_minus_92 <- MRS_S_Prec_raw[-92, ]
-
-# 3. Run the standard quadratic model on this N-1 dataset
-model_quad_minus_92 <- lm(
-  m_m_precuneus ~ cortical_thickness_c + cortical_thickness_sq + 
-    age_spectro_c + sex + education + diagnostic_nick, 
-  data = MRS_raw_minus_92
-)
-
-# 4. Run the linear model for the ANOVA comparison
-model_lin_minus_92 <- lm(
-  m_m_precuneus ~ cortical_thickness_c + age_spectro_c + sex + education + diagnostic_nick, 
-  data = MRS_raw_minus_92
-)
-
-# 5. View the results
-print("--- QUADRATIC MODEL (MINUS OBS 92) ---")
-summary(model_quad_minus_92)
-
-print("--- ANOVA: LINEAR VS QUADRATIC ---")
-anova(model_lin_minus_92, model_quad_minus_92)
 
 ############## Mediation analysis ##################
 library(mediation)
 # Select raw columns
 mediation_combined <- MRS_full[, c("m_m_precuneus", "m_m_acc", 
                                    "hipp_mean", "cortical_thickness_adsignature_dickson", 
-                                   "hipp_mean_act", "activation_parietal_sup_l", 
-                                   "sex", "age_spectro")] |> na.omit()
+                                   "hipp_mean_act", "activation_parietal_sup_l", "education", "diagnostic_nick",
+                                   "sex", "age_spectro", "memoria_libre_correcte")] |> na.omit()
 # Create composite "mean" variables
 mediation_combined$mean_structure <- rowMeans(scale(mediation_combined[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
 mediation_combined$mean_activation <- rowMeans(scale(mediation_combined[, c("hipp_mean_act", "activation_parietal_sup_l")]), na.rm = TRUE)
@@ -488,11 +402,11 @@ mediation_combined$mean_glu <- rowMeans(scale(mediation_combined[, c("m_m_precun
 ###############################  GLOBAL COMBINED MODEL ###########################
 # Mean Structure -> Mean Glu -> Mean Activation
 # M ~ X
-model_m_comb <- lm(mean_glu ~ mean_structure, data = mediation_combined)
+model_m_comb <- lm(mean_glu ~ mean_structure + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
 summary(model_m_comb)
 
 # Y ~ X + M
-model_y_comb <- lm(mean_activation ~ mean_structure + mean_glu, data = mediation_combined)
+model_y_comb <- lm(mean_activation ~ mean_structure + mean_glu + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
 summary(model_y_comb)
 
 # Mediate
@@ -501,6 +415,25 @@ med_comb <- mediate(model_m_comb, model_y_comb,
                     boot = TRUE, sims = 5000)
 summary(med_comb)
 plot(med_comb)
+
+
+
+
+# M ~ X
+model_m_comb <- lm(mean_structure ~ mean_glu  + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
+summary(model_m_comb)
+
+# Y ~ X + M
+model_y_comb <- lm(memoria_libre_correcte ~ mean_structure + mean_glu + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
+summary(model_y_comb)
+
+# Mediate
+med_comb <- mediate(model_m_comb, model_y_comb, 
+                    treat = "mean_structure", mediator = "mean_glu", 
+                    boot = TRUE, sims = 1000)
+summary(med_comb)
+plot(med_comb)
+
 
 
 #### With robmed package ####
@@ -526,26 +459,3 @@ med <- mediation_combined$mean_glu
 zmediate_results <- ZYmediate(x, y, med, nboot = 5000, alpha = 0.05, kappa = 0.05)
 zmediate_results
 
-
-
-
-## Quadratic mediation analysis ###
-library(lavaan)
-
-# 1. Define the exact same model (so Path A and Path B are explicitly linked)
-quad_model_parietal <- '
-  m_m_precuneus ~ a1*cortical_thickness_adsignature_dickson_c + a2*cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education + SCD_plus + MCI
-  
-  activation_parietal_sup_l ~ b*m_m_precuneus + c1*cortical_thickness_adsignature_dickson_c + c2*cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education + SCD_plus + MCI
-  
-  indirect_linear := a1 * b
-  indirect_quad   := a2 * b
-'
-
-# 2. Run with Robust Standard Errors (MLR) instead of bootstrapping
-fit_quad_mlr <- sem(quad_model_parietal, 
-                    data = MRS_Med_Parietal_act, 
-                    estimator = "MLR") # This is the crucial fix
-
-# 3. View the results
-summary(fit_quad_mlr, standardized = TRUE)
