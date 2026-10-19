@@ -283,6 +283,18 @@ summary(model_quad_prec_thick_SCD)
 model_quad_prec_thick_MCI <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education, data = subset(MRS_S_Prec, diagnostic_nick == "MCI"))
 summary(model_quad_prec_thick_MCI)
 
+## Robust lm (do on unwizorized variables)
+
+model_quad_prec_thick_rob <- lmrob(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + 
+    age_spectro_c + sex + education + diagnostic_nick, data = MRS_S_Prec, setting = "KS2014")
+
+summary(model_quad_prec_thick_rob)
+
+
+anova(model_lin_prec_thick_rob, model_quad_prec_thick_rob, test = "Wald")
+
+
+
 #### Activaiton ######
 names(MRS_A_ACC)
 names(MRS_A_Prec)
@@ -385,13 +397,14 @@ AIC(model_quad_prec_memor)
 
 
 
+names(MRS_full)
 ############## Mediation analysis ##################
 library(mediation)
 # Select raw columns
 mediation_combined <- MRS_full[, c("m_m_precuneus", "m_m_acc", 
                                    "hipp_mean", "cortical_thickness_adsignature_dickson", 
                                    "hipp_mean_act", "activation_parietal_sup_l", "education", "diagnostic_nick",
-                                   "sex", "age_spectro", "memoria_libre_correcte")] |> na.omit()
+                                   "sex", "age_spectro")] |> na.omit()
 # Create composite "mean" variables
 mediation_combined$mean_structure <- rowMeans(scale(mediation_combined[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
 mediation_combined$mean_activation <- rowMeans(scale(mediation_combined[, c("hipp_mean_act", "activation_parietal_sup_l")]), na.rm = TRUE)
@@ -412,27 +425,33 @@ summary(model_y_comb)
 # Mediate
 med_comb <- mediate(model_m_comb, model_y_comb, 
                     treat = "mean_structure", mediator = "mean_glu", 
-                    boot = TRUE, sims = 5000)
+                    boot = TRUE, sims = 1000)
 summary(med_comb)
 plot(med_comb)
 
 
 
 
+#### Quadratic #####
+mediation_sq <- MRS_full[, c("m_m_precuneus", "m_m_acc", 
+                                   "hipp_mean", "cortical_thickness_adsignature_dickson_c", "cortical_thickness_adsignature_dickson_sq",
+                                   "education", "diagnostic_nick",
+                                   "sex", "age_spectro_c")] |> na.omit()
 # M ~ X
-model_m_comb <- lm(mean_structure ~ mean_glu  + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
-summary(model_m_comb)
+model_m_sq <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education + diagnostic_nick, data = mediation_sq)
+summary(model_m_sq)
 
 # Y ~ X + M
-model_y_comb <- lm(memoria_libre_correcte ~ mean_structure + mean_glu + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
+model_y_comb <- lm(mean_activation ~ mean_structure + mean_glu + age_spectro + sex + education + diagnostic_nick, data = mediation_combined)
 summary(model_y_comb)
 
 # Mediate
 med_comb <- mediate(model_m_comb, model_y_comb, 
                     treat = "mean_structure", mediator = "mean_glu", 
-                    boot = TRUE, sims = 1000)
+                    boot = TRUE, sims = 5000)
 summary(med_comb)
 plot(med_comb)
+
 
 
 
