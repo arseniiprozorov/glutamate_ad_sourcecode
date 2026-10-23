@@ -285,13 +285,13 @@ summary(model_quad_prec_thick_MCI)
 
 ## Robust lm (do on unwizorized variables)
 
-model_quad_prec_thick_rob <- lmrob(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + 
-    age_spectro_c + sex + education + diagnostic_nick, data = MRS_S_Prec, setting = "KS2014")
+#model_quad_prec_thick_rob <- lmrob(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + 
+#    age_spectro_c + sex + education + diagnostic_nick, data = MRS_S_Prec, setting = "KS2014")
 
-summary(model_quad_prec_thick_rob)
+#summary(model_quad_prec_thick_rob)
 
 
-anova(model_lin_prec_thick_rob, model_quad_prec_thick_rob, test = "Wald")
+#anova(model_lin_prec_thick_rob, model_quad_prec_thick_rob, test = "Wald")
 
 
 
@@ -353,6 +353,9 @@ summary(model_quad_prec_hipp_act)
 AIC(model_quad_prec_hipp_act)
 
 anova(model_lin_prec_hipp_act, model_quad_prec_hipp_act)
+
+
+
 
 ### Memory ###
 
@@ -429,6 +432,29 @@ med_comb <- mediate(model_m_comb, model_y_comb,
 summary(med_comb)
 plot(med_comb)
 
+
+## Propagation of a beta hypothesis
+
+# 1. M ~ X: Precuneus Glutamate predicts ACC Glutamate
+model_m_network <- lm(m_m_acc ~ m_m_precuneus + age_spectro + sex + education + diagnostic_nick, 
+                      data = mediation_combined)
+summary(model_m_network)
+
+# 2. Y ~ X + M: Precuneus Glutamate + ACC Glutamate predict Hippocampal Volume
+model_y_network <- lm(hipp_mean ~ m_m_precuneus + m_m_acc + age_spectro + sex + education + diagnostic_nick, 
+                      data = mediation_combined)
+summary(model_y_network)
+
+# 3.  Precuneus Glutamate -> ACC Glu --> Hippocampal Volume
+med_network <- mediate(model_m_network, 
+                       model_y_network, 
+                       treat = "m_m_precuneus", 
+                       mediator = "m_m_acc", 
+                       boot = TRUE, 
+                       sims = 5000)
+
+summary(med_network)
+plot(med_network)
 
 
 
