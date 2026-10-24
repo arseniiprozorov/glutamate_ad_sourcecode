@@ -9,6 +9,7 @@ library(emmeans)
 ## Arsenii Prozorov 
 #ANALYSES PRÉLIMINAIRES :
 #Création d’une banque de données
+import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/import_data_arsenii_20261017.xlsx")
 
 import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/rencontre_Sylvie_20251017/import_data_arsenii_20250609_hippR.xlsx")
 MRS_full <- import_data_arsenii_20250609_hippR
@@ -60,8 +61,6 @@ MRS_full$moca_corr_spectro <- winsorize_iqr(MRS_full$moca_corr_spectro, 1.5)
 MRS_full$dprime_hit_fa <- winsorize_iqr(MRS_full$dprime_hit_fa, 1.5)
 MRS_full$associative_memory_performance_sylvie <- winsorize_iqr(MRS_full$associative_memory_performance_sylvie, 1.5)
 
-
-# Apply winsorization for 1.7 IQR variables
 MRS_full$hip_l_nor_icv <- winsorize_iqr(MRS_full$hip_l_nor_icv, 1.5)
 MRS_full$hipp_mean <- winsorize_iqr(MRS_full$hipp_mean, 1.5)
 MRS_full$cortical_thickness_adsignature_dickson <- winsorize_iqr(MRS_full$cortical_thickness_adsignature_dickson, 1.5)
@@ -266,15 +265,17 @@ AIC(model_quad_acc_thick)
 anova(model_lin_acc_thick, model_quad_acc_thick)
 
 # Model 4 m_m_Precuneus ~ thickness
-model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + age_spectro_c + sex + education + diagnostic_nick, data = MRS_S_Prec)
+model_lin_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + age_spectro_c + sex , data = MRS_S_Prec)
 summary(model_lin_prec_thick)
 AIC(model_lin_prec_thick)
-model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education + diagnostic_nick, data = MRS_S_Prec)
+model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex, data = MRS_S_Prec)
 summary(model_quad_prec_thick)
 AIC(model_quad_prec_thick)
 
 anova(model_lin_prec_thick, model_quad_prec_thick)
 
+BIC(model_lin_prec_thick)
+BIC(model_quad_prec_thick)
 #Models by subgroup
 model_quad_prec_thick_CU <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq + age_spectro_c + sex + education, data = subset(MRS_S_Prec, diagnostic_nick == "HC"))
 summary(model_quad_prec_thick_CU)
@@ -373,7 +374,7 @@ anova(model_lin_acc_memor, model_quad_acc_memor)
 model_lin_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c , data = MRS_M_Prec)
 summary(model_lin_prec_memor)
 AIC(model_lin_prec_memor)
-model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq , data = MRS_M_Prec)
+model_quad_prec_memor <- lm(memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq, data = MRS_M_Prec)
 summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
 
@@ -394,8 +395,8 @@ AIC(model_lin_prec_memor)
 model_quad_prec_memor <- lm(face_name_rappel_differe_spectro ~ m_m_precuneus_c + m_m_precuneus_sq + age_spectro_c + sex + education + diagnostic_nick, data = MRS_M_Prec)
 summary(model_quad_prec_memor)
 AIC(model_quad_prec_memor)
-
-
+BIC(model_lin_prec_memor)
+BIC(model_quad_prec_memor)
 
 
 
@@ -433,28 +434,7 @@ summary(med_comb)
 plot(med_comb)
 
 
-## Propagation of a beta hypothesis
 
-# 1. M ~ X: Precuneus Glutamate predicts ACC Glutamate
-model_m_network <- lm(m_m_acc ~ m_m_precuneus + age_spectro + sex + education + diagnostic_nick, 
-                      data = mediation_combined)
-summary(model_m_network)
-
-# 2. Y ~ X + M: Precuneus Glutamate + ACC Glutamate predict Hippocampal Volume
-model_y_network <- lm(hipp_mean ~ m_m_precuneus + m_m_acc + age_spectro + sex + education + diagnostic_nick, 
-                      data = mediation_combined)
-summary(model_y_network)
-
-# 3.  Precuneus Glutamate -> ACC Glu --> Hippocampal Volume
-med_network <- mediate(model_m_network, 
-                       model_y_network, 
-                       treat = "m_m_precuneus", 
-                       mediator = "m_m_acc", 
-                       boot = TRUE, 
-                       sims = 5000)
-
-summary(med_network)
-plot(med_network)
 
 
 
