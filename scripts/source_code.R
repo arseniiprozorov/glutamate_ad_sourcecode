@@ -272,6 +272,8 @@ summary(model_quad_prec_thick)
 
 AIC(model_lin_prec_thick)
 AIC(model_quad_prec_thick)
+BIC(model_lin_prec_thick)
+BIC(model_quad_prec_thick)
 anova(model_lin_prec_thick, model_quad_prec_thick)
 
 
@@ -344,6 +346,8 @@ summary(model_quad_prec_memor)
 
 AIC(model_lin_prec_memor)
 AIC(model_quad_prec_memor)
+BIC(model_lin_prec_memor)
+BIC(model_quad_prec_memor)
 anova(model_lin_prec_memor, model_quad_prec_memor)
 
 

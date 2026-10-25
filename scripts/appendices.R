@@ -632,3 +632,49 @@ med_quad <- mediate(model_m_quad, model_y_quad, treat = "cortical_thickness_adsi
 summary(med_quad)
 plot(med_quad)
 
+
+
+
+
+
+mean_x <- mean(mediation_sq$cortical_thickness_adsignature_dickson_c)
+sd_x   <- sd(mediation_sq$cortical_thickness_adsignature_dickson_c)
+delta  <- 0.01  # Small step to approximate derivative
+
+# Indirect effect at LOW Cortical Thickness (-1 SD)
+med_low <- mediate(
+  model_m_quad, model_y_quad, 
+  treat = "cortical_thickness_adsignature_dickson_c", 
+  mediator = "m_m_precuneus_c",
+  control.value = (mean_x - sd_x) - (delta / 2),
+  treat.value   = (mean_x - sd_x) + (delta / 2),
+  boot = TRUE, sims = 1000
+)
+
+# Indirect effect at HIGH Cortical Thickness (+1 SD)
+med_high <- mediate(
+  model_m_quad, model_y_quad, 
+  treat = "cortical_thickness_adsignature_dickson_c", 
+  mediator = "m_m_precuneus_c",
+  control.value = (mean_x + sd_x) - (delta / 2),
+  treat.value   = (mean_x + sd_x) + (delta / 2),
+  boot = TRUE, sims = 1000
+)
+
+summary(med_low)   # Shows indirect effect on left side of parabola
+summary(med_high)  # Shows indirect effect on right side of parabola
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
