@@ -690,16 +690,5 @@ summary(med_descending)
 
 
 
-
-
-
-model_m_quad <- lm(m_m_precuneus_c ~ cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2), data = mediation_sq)
-summary(model_m_quad)
-model_y_quad <- lm(hipp_mean_act_c ~ cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2) + m_m_precuneus_c, data = mediation_sq)
-summary(model_y_quad)
-med_quad <- mediate(model_m_quad, model_y_quad, treat = "cortical_thickness_adsignature_dickson_c", mediator = "m_m_precuneus_c", control.value = -sd_x, treat.value = sd_x, boot = TRUE, sims = 5000)
-summary(med_quad)
-plot(med_quad)
-
-
+ 
 

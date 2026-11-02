@@ -403,7 +403,7 @@ summary(model_y_comb)
 # Mediate
 med_comb <- mediate(model_m_comb, model_y_comb, 
                     treat = "mean_structure", mediator = "mean_glu", 
-                    boot = TRUE, sims = 1000)
+                    boot = TRUE, sims = 5000)
 summary(med_comb)
 plot(med_comb)
 
