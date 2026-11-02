@@ -620,12 +620,17 @@ model_m_quad <- lm(m_m_precuneus_c ~ cortical_thickness_adsignature_dickson_c +
                      I(cortical_thickness_adsignature_dickson_c^2), 
                    data = mediation_sq)
 summary(model_m_quad)
-model_y_quad <- lm(activation_parietal_sup_l_c ~ cortical_thickness_adsignature_dickson_c + 
-                     I(cortical_thickness_adsignature_dickson_c^2) + 
-                     m_m_precuneus_c, 
+model_y_quad <- lm(activation_parietal_sup_l_c ~ m_m_precuneus_c + cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2), 
                    data = mediation_sq)
 summary(model_y_quad)
 
+
+# Mediate
+med_comb <- mediate(model_m_quad, model_y_quad, 
+                    treat = "cortical_thickness_adsignature_dickson_c", mediator = "m_m_precuneus_c", 
+                    boot = TRUE, sims = 5000)
+summary(med_comb)
+plot(med_comb)
 # 2. Segment 1: Ascending Limb (Low to Moderate Atrophy: -1 SD to 0 SD)
 med_ascending <- mediate(model_m_quad, model_y_quad, 
                          treat = "cortical_thickness_adsignature_dickson_c", 
@@ -687,6 +692,43 @@ summary(med_descending)
 
 
 
+
+
+
+
+library(lavaan)
+
+# 1. Ensure quadratic term exists in dataframe
+mediation_sq$cortical_thickness_sq <- mediation_sq$cortical_thickness_adsignature_dickson_c^2
+
+# 2. Define SEM syntax with labeled paths
+sem_model <- '
+  # Mediator equation (M ~ X_lin + X_quad)
+  m_m_precuneus_c ~ a1*cortical_thickness_adsignature_dickson_c + a2*cortical_thickness_sq
+
+  # Outcome equation (Y ~ M + X_lin + X_quad)
+  activation_parietal_sup_l_c ~ b*m_m_precuneus_c + c1*cortical_thickness_adsignature_dickson_c + c2*cortical_thickness_sq
+
+  # Defined Parameters: Indirect Effects
+  ind_linear    := a1 * b
+  ind_quadratic := a2 * b
+  
+  # Defined Parameters: Total Indirect & Direct Effects
+  ind_total     := ind_linear + ind_quadratic
+  total_linear  := c1 + ind_linear
+'
+
+# 3. Fit SEM model with nonparametric bootstrapping for CI estimation
+set.seed(123)
+fit_sem <- sem(
+  model = sem_model, 
+  data = mediation_sq, 
+  se = "bootstrap", 
+  bootstrap = 5000
+)
+
+# 4. View results with standardized estimates and percentile CIs
+summary(fit_sem, fit.measures = TRUE, standardize = TRUE, ci = TRUE, rsquare = TRUE)
 
 
 
