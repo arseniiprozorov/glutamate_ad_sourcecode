@@ -592,9 +592,6 @@ plot(med_8)
 
 
 
-
-library(mediation)
-
 ########################   Squared     #######################################################
 
 # Corrected column selection
@@ -615,13 +612,85 @@ sd_x <- sd(mediation_sq$cortical_thickness_adsignature_dickson_c)
 ###############################################################################
 # Quadratic: Cortical Thickness -> Precuneus Glu -> Parietal Activation
 ###############################################################################
-model_m_quad <- lm(m_m_precuneus_c ~ cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2), data = mediation_sq)
+### Global model ####
+
+############### thick --> Glu Prec ---> activation parietal ##############
+# 1. Fit models with parietal activaiton
+model_m_quad <- lm(m_m_precuneus_c ~ cortical_thickness_adsignature_dickson_c + 
+                     I(cortical_thickness_adsignature_dickson_c^2), 
+                   data = mediation_sq)
 summary(model_m_quad)
-model_y_quad <- lm(activation_parietal_sup_l_c ~ cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2) + m_m_precuneus_c, data = mediation_sq)
+model_y_quad <- lm(activation_parietal_sup_l_c ~ cortical_thickness_adsignature_dickson_c + 
+                     I(cortical_thickness_adsignature_dickson_c^2) + 
+                     m_m_precuneus_c, 
+                   data = mediation_sq)
 summary(model_y_quad)
-med_quad <- mediate(model_m_quad, model_y_quad, treat = "cortical_thickness_adsignature_dickson_c", mediator = "m_m_precuneus_c", control.value = -sd_x, treat.value = sd_x, boot = TRUE, sims = 1000)
-summary(med_quad)
-plot(med_quad)
+
+# 2. Segment 1: Ascending Limb (Low to Moderate Atrophy: -1 SD to 0 SD)
+med_ascending <- mediate(model_m_quad, model_y_quad, 
+                         treat = "cortical_thickness_adsignature_dickson_c", 
+                         mediator = "m_m_precuneus_c",
+                         control.value = -1.0, treat.value = 0.0, 
+                         boot = TRUE, sims = 1000)
+summary(med_ascending)
+
+# 3. Segment 2: Apex Region (Transition around sample mean: -0.5 SD to +0.5 SD)
+med_apex <- mediate(model_m_quad, model_y_quad, 
+                    treat = "cortical_thickness_adsignature_dickson_c", 
+                    mediator = "m_m_precuneus_c",
+                    control.value = -0.5, treat.value = 0.5, 
+                    boot = TRUE, sims = 1000)
+summary(med_apex)
+
+# 4. Segment 3: Descending Limb (Moderate to Severe Atrophy: 0 SD to +1 SD)
+med_descending <- mediate(model_m_quad, model_y_quad, 
+                          treat = "cortical_thickness_adsignature_dickson_c", 
+                          mediator = "m_m_precuneus_c",
+                          control.value = 0.0, treat.value = 1.0, 
+                          boot = TRUE, sims = 1000)
+summary(med_descending)
+
+
+
+
+############### thick --> Glu Prec ---> activation hippocampus ##############
+# 1. Fit models with hippocampal activaiton
+model_y_quad <- lm(hipp_mean_act_c ~ cortical_thickness_adsignature_dickson_c + 
+                     I(cortical_thickness_adsignature_dickson_c^2) + 
+                     m_m_precuneus_c, 
+                   data = mediation_sq)
+summary(model_y_quad)
+
+# 2. Segment 1: Ascending Limb (Low to Moderate Atrophy: -1 SD to 0 SD)
+med_ascending <- mediate(model_m_quad, model_y_quad, 
+                         treat = "cortical_thickness_adsignature_dickson_c", 
+                         mediator = "m_m_precuneus_c",
+                         control.value = -1.0, treat.value = 0.0, 
+                         boot = TRUE, sims = 1000)
+summary(med_ascending)
+
+# 3. Segment 2: Apex Region (Transition around sample mean: -0.5 SD to +0.5 SD)
+med_apex <- mediate(model_m_quad, model_y_quad, 
+                    treat = "cortical_thickness_adsignature_dickson_c", 
+                    mediator = "m_m_precuneus_c",
+                    control.value = -0.5, treat.value = 0.5, 
+                    boot = TRUE, sims = 1000)
+summary(med_apex)
+
+# 4. Segment 3: Descending Limb (Moderate to Severe Atrophy: 0 SD to +1 SD)
+med_descending <- mediate(model_m_quad, model_y_quad, 
+                          treat = "cortical_thickness_adsignature_dickson_c", 
+                          mediator = "m_m_precuneus_c",
+                          control.value = 0.0, treat.value = 1.0, 
+                          boot = TRUE, sims = 1000)
+summary(med_descending)
+
+
+
+
+
+
+
 
 
 model_m_quad <- lm(m_m_precuneus_c ~ cortical_thickness_adsignature_dickson_c + I(cortical_thickness_adsignature_dickson_c^2), data = mediation_sq)
@@ -631,50 +700,6 @@ summary(model_y_quad)
 med_quad <- mediate(model_m_quad, model_y_quad, treat = "cortical_thickness_adsignature_dickson_c", mediator = "m_m_precuneus_c", control.value = -sd_x, treat.value = sd_x, boot = TRUE, sims = 5000)
 summary(med_quad)
 plot(med_quad)
-
-
-
-
-
-
-mean_x <- mean(mediation_sq$cortical_thickness_adsignature_dickson_c)
-sd_x   <- sd(mediation_sq$cortical_thickness_adsignature_dickson_c)
-delta  <- 0.01  # Small step to approximate derivative
-
-# Indirect effect at LOW Cortical Thickness (-1 SD)
-med_low <- mediate(
-  model_m_quad, model_y_quad, 
-  treat = "cortical_thickness_adsignature_dickson_c", 
-  mediator = "m_m_precuneus_c",
-  control.value = (mean_x - sd_x) - (delta / 2),
-  treat.value   = (mean_x - sd_x) + (delta / 2),
-  boot = TRUE, sims = 1000
-)
-
-# Indirect effect at HIGH Cortical Thickness (+1 SD)
-med_high <- mediate(
-  model_m_quad, model_y_quad, 
-  treat = "cortical_thickness_adsignature_dickson_c", 
-  mediator = "m_m_precuneus_c",
-  control.value = (mean_x + sd_x) - (delta / 2),
-  treat.value   = (mean_x + sd_x) + (delta / 2),
-  boot = TRUE, sims = 1000
-)
-
-summary(med_low)   # Shows indirect effect on left side of parabola
-summary(med_high)  # Shows indirect effect on right side of parabola
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
