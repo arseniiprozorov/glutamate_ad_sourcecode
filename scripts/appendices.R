@@ -1,4 +1,42 @@
 ## Supplementary Table 1 - Sensetivity analysis with normalisation of cortical thickness by surface 
+# AD-SIGNATURE CORTICAL THICKNESS DERIVATION & SENSITIVITY FORMULAS
+# ## Regions from FreeSurfer Analysis (Desikan-Killiany Atlas):
+#   - Medial Temporal (entorhinal and parahippocampal cortices)
+#   - Inferior Temporal Cortex
+#   - Temporal Pole
+#   - Superior Frontal Gyrus
+#   - Inferior Parietal Lobule
+#   - Superior Parietal Lobule
+#   - Supramarginal Gyrus
+#   - Precuneus
+#   - Inferior Frontal Cortex (pars opercularis, pars orbitalis, and pars triangularis)
+#   - Pericalcarine Cortex
+#
+# EXTRACTION & DERIVATION LOGIC:
+# 1. Bilateral Averaging (Step 1):
+#    For every individual region (ROI), the bilateral average thickness was 
+#    computed first across hemispheres:
+#    Thickness_ROI = (Left_ROI_Thickness + Right_ROI_Thickness) / 2
+#
+# 2. Sub-regional Composite Averaging (Step 2 - for parenthetical clusters):
+#    For compound structures containing multiple sub-regions:
+#    - Medial Temporal = Mean(Bilateral Entorhinal, Bilateral Parahippocampal)
+#    - Inferior Frontal = Mean(Bilateral Pars Opercularis, Pars Orbitalis, Pars Triangularis)
+#
+# 3. Primary Metric (Unweighted Mean):
+#    The primary AD-signature thickness composite was computed as the simple 
+#    unweighted arithmetic average across all target ROI mean thickness values (in mm):
+#    AD_Signature_Thickness_Unweighted = Mean(ROI_1, ROI_2, ..., ROI_k)
+#
+# 4. Sensitivity Metric (Surface-Area-Weighted Mean):
+#    To control for regional surface area variations, the weighted metric 
+#    was computed using total surface area weighting across constituent ROIs:
+#    AD_Signature_Thickness_Weighted = 
+#      sum(Thickness_ROI_i * SurfaceArea_ROI_i) / sum(SurfaceArea_ROI_i)
+
+
+
+
 
 
 
