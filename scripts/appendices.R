@@ -1,3 +1,7 @@
+## Supplementary Table 1 - Sensetivity analysis with normalisation of cortical thickness by surface 
+
+
+
 ###   Controling for sex,  age,  education, diagnostic
 
 #### structure  ######

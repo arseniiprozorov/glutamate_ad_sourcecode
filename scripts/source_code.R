@@ -173,7 +173,7 @@ fisher.test(participant_sex[c("HC","MCI"), ])
 fisher.test(participant_sex[c("SCD+","MCI"), ]) 
 
 # Age
-jmv::descriptives(data = MRS_full,vars = vars(age_spectro), splitBy = "diagnostic_nick",sd = TRUE,hist = TRUE)
+jmv::descriptives(data = MRS_full,vars = vars(age_spectro), splitBy = "diagnostic_nick",sd = TRUE,hist = TRUE, range = TRUE)
 anova_age <- aov(age_spectro ~ diagnostic_nick, data = MRS_full)
 summary(anova_age)               
 TukeyHSD(anova_age) 
@@ -205,12 +205,6 @@ summary(anova_face)
 TukeyHSD(anova_face)
 
 
-# Associative memory
-jmv::descriptives(data = MRS_full,vars = vars(associative_memory_performance), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE)
-anova_assoc <- aov(associative_memory_performance ~ diagnostic_nick, data = MRS_full)
-summary(anova_assoc)
-TukeyHSD(anova_assoc)
-
 
 ################ ANOVA glut  ###################
 jmv::descriptives(data = MRS_full,vars = vars(m_m_precuneus, m_m_acc), splitBy = "diagnostic_nick",sd = TRUE, hist = TRUE, iqr = TRUE)
@@ -226,6 +220,13 @@ summary(anova_precuneus)
 TukeyHSD(anova_precuneus)
 eta_squared(anova_precuneus)          
 
+
+################ ANOVA Structure ###############
+
+
+
+
+############ ANOVA Function ##############
 
 
 
