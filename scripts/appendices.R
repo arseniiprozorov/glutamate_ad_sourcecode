@@ -39,6 +39,44 @@
 
 
 
+### Supplementary table 2 - quality control MRS
+
+final_dataset_used_with_QC_ACC_Precuneus <- read_excel("C:/Users/okkam/Desktop/labo/article 1/NeuroImage Clinical/MRS/analysis_supplementary/final_dataset_used_with_QC_ACC_Precuneus.xlsx")
+MRS_QC <- final_dataset_used_with_QC_ACC_Precuneus
+
+# Clean the column name
+MRS_QC <- janitor::clean_names(MRS_QC)
+names(MRS_QC)
+
+# Regrouper les groupes 'HC' et 'SCD' dans un seul groupe 'SCD'
+MRS_QC$diagnostic_nick <- ifelse(MRS_QC$diagnostic_nick %in% c("HC", "SCD"), "HC", MRS_QC$diagnostic_nick)
+MRS_QC$diagnostic_nick <- factor(MRS_QC$diagnostic_nick, levels = c("HC", "SCD+", "MCI"))
+
+
+jmv::descriptives(data = MRS_QC, vars = vars(m_m_acc_2, m_m_crlb_acc, percent_crlb_acc, snr_acc, fwhm_acc, gm_acc, wm_acc, csf_acc), sd = TRUE, range = TRUE, skew = TRUE, kurt = TRUE)
+jmv::descriptives(data = MRS_QC, vars = vars(m_m_precuneus_2, m_m_crlb_precuneus, percent_crlb_precuneus, snr_precuneus, fwhm_precuneus, gm_precuneus, wm_precuneus, csf_precuneus), sd = TRUE, range = TRUE, skew = TRUE, kurt = TRUE)
+
+
+jmv::descriptives(data = MRS_QC, vars = vars(m_m_acc_2, m_m_crlb_acc, percent_crlb_acc, snr_acc, fwhm_acc, gm_acc, wm_acc, csf_acc), sd = TRUE, range = TRUE, skew = TRUE, kurt = TRUE, splitBy = "diagnostic_nick")
+jmv::descriptives(data = MRS_QC, vars = vars(m_m_precuneus_2, m_m_crlb_precuneus, percent_crlb_precuneus, snr_precuneus, fwhm_precuneus, gm_precuneus, wm_precuneus, csf_precuneus), sd = TRUE, range = TRUE, skew = TRUE, kurt = TRUE, splitBy = "diagnostic_nick")
+
+summary(aov(m_m_crlb_acc ~ diagnostic_nick, data = MRS_QC))
+summary(aov(snr_acc ~ diagnostic_nick, data = MRS_QC))
+summary(aov(fwhm_acc ~ diagnostic_nick, data = MRS_QC))
+summary(aov(gm_acc ~ diagnostic_nick, data = MRS_QC))
+summary(aov(wm_acc ~ diagnostic_nick, data = MRS_QC))
+summary(aov(csf_acc ~ diagnostic_nick, data = MRS_QC))
+
+summary(aov(m_m_crlb_precuneus ~ diagnostic_nick, data = MRS_QC))
+summary(aov(snr_precuneus ~ diagnostic_nick, data = MRS_QC))
+summary(aov(fwhm_precuneus ~ diagnostic_nick, data = MRS_QC))
+summary(aov(gm_precuneus ~ diagnostic_nick, data = MRS_QC))
+summary(aov(wm_precuneus ~ diagnostic_nick, data = MRS_QC))
+summary(aov(csf_precuneus ~ diagnostic_nick, data = MRS_QC))
+
+
+
+
 
 ###   Controling for sex,  age,  education, diagnostic
 
