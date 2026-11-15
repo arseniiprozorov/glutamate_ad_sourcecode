@@ -196,7 +196,7 @@ summary(anova_parietal_act)
 ######################### Polynomial analyses  ####################################
 
 #### structure and memory ######
-sink("Table 2,3 linear and quadratic models between proxies of disease severity .txt") 
+#sink("Table 2,3 linear and quadratic models between proxies of disease severity .txt") 
 
 # Model 1 m_m_ACC ~ hipp mean
 model_lin_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c, data = MRS_full)
@@ -331,7 +331,7 @@ AIC(model_quad_prec_facename)
 anova(model_lin_prec_facename, model_quad_prec_facename)
 
 
-sink() 
+#sink() 
 
 
 
@@ -350,6 +350,7 @@ mediation_combined$mean_glu <- rowMeans(scale(mediation_combined[, c("m_m_precun
 
 
 ###############################  GLOBAL COMBINED MODEL ###########################
+#sink("mediation_main.txt") 
 # Mean Structure -> Mean Glu -> Mean Activation
 # M ~ X
 model_m_comb <- lm(mean_glu ~ mean_structure, data = mediation_combined)
@@ -367,6 +368,7 @@ summary(med_comb)
 plot(med_comb)
 
 
+#sink() 
 
 
 
