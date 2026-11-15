@@ -4,19 +4,19 @@ lm(formula = m_m_acc ~ hipp_mean_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--2.4772 -0.8564 -0.3081  0.5765  6.5539 
+-1.9141 -0.7025 -0.1337  0.7153  2.4440 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  14.3410     0.1437  99.796  < 2e-16 ***
-hipp_mean_c   2.2819     0.5527   4.129 7.73e-05 ***
+(Intercept) 14.21589    0.09372 151.681  < 2e-16 ***
+hipp_mean_c  1.72598    0.37749   4.572 1.42e-05 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.429 on 97 degrees of freedom
+Residual standard error: 0.9322 on 97 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.1495,	Adjusted R-squared:  0.1407 
-F-statistic: 17.05 on 1 and 97 DF,  p-value: 7.73e-05
+Multiple R-squared:  0.1773,	Adjusted R-squared:  0.1688 
+F-statistic: 20.91 on 1 and 97 DF,  p-value: 1.424e-05
 
 
 Call:
@@ -24,49 +24,49 @@ lm(formula = m_m_acc ~ hipp_mean_c + hipp_mean_sq, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--2.4684 -0.8398 -0.3128  0.6006  6.6104 
+-1.9337 -0.6983 -0.1184  0.7319  2.4153 
 
 Coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)   14.3585     0.1679  85.541  < 2e-16 ***
-hipp_mean_c    2.2459     0.5827   3.855  0.00021 ***
-hipp_mean_sq  -0.2559     1.2489  -0.205  0.83810    
+(Intercept)   14.2571     0.1189 119.930  < 2e-16 ***
+hipp_mean_c    1.7000     0.3816   4.455 2.27e-05 ***
+hipp_mean_sq  -0.6652     1.1745  -0.566    0.572    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.436 on 96 degrees of freedom
+Residual standard error: 0.9355 on 96 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.1498,	Adjusted R-squared:  0.1321 
-F-statistic: 8.459 on 2 and 96 DF,  p-value: 0.0004133
+Multiple R-squared:  0.1801,	Adjusted R-squared:  0.163 
+F-statistic: 10.54 on 2 and 96 DF,  p-value: 7.274e-05
 
-[1] 355.6637
-[1] 357.6204
+[1] 271.0251
+[1] 272.6948
 Analysis of Variance Table
 
 Model 1: m_m_acc ~ hipp_mean_c
 Model 2: m_m_acc ~ hipp_mean_c + hipp_mean_sq
-  Res.Df    RSS Df Sum of Sq     F Pr(>F)
-1     97 198.19                          
-2     96 198.10  1  0.086614 0.042 0.8381
+  Res.Df    RSS Df Sum of Sq      F Pr(>F)
+1     97 84.290                           
+2     96 84.009  1   0.28067 0.3207 0.5725
 
 Call:
 lm(formula = m_m_precuneus ~ hipp_mean_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.7324 -0.8686 -0.1378  0.4361 17.8480 
+-3.3367 -0.6929  0.0379  0.6040  2.8869 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  15.1311     0.2073  73.008   <2e-16 ***
-hipp_mean_c   1.9213     0.7921   2.426   0.0171 *  
+(Intercept)  14.9909     0.1110  135.09  < 2e-16 ***
+hipp_mean_c   1.6029     0.4428    3.62 0.000463 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.103 on 101 degrees of freedom
+Residual standard error: 1.126 on 101 degrees of freedom
   (4 observations deleted due to missingness)
-Multiple R-squared:  0.05504,	Adjusted R-squared:  0.04569 
-F-statistic: 5.883 on 1 and 101 DF,  p-value: 0.01706
+Multiple R-squared:  0.1148,	Adjusted R-squared:  0.1061 
+F-statistic:  13.1 on 1 and 101 DF,  p-value: 0.0004632
 
 
 Call:
@@ -74,30 +74,30 @@ lm(formula = m_m_precuneus ~ hipp_mean_c + hipp_mean_sq, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.7359 -0.8644 -0.1423  0.4572 17.8441 
+-3.3328 -0.6900  0.0356  0.6072  2.8910 
 
 Coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)   15.1429     0.2418  62.617   <2e-16 ***
-hipp_mean_c    1.8945     0.8429   2.248   0.0268 *  
-hipp_mean_sq  -0.1748     1.8088  -0.097   0.9232    
+(Intercept)   14.9829     0.1401 106.965  < 2e-16 ***
+hipp_mean_c    1.6105     0.4523   3.561 0.000567 ***
+hipp_mean_sq   0.1278     1.3538   0.094 0.924951    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.114 on 100 degrees of freedom
+Residual standard error: 1.132 on 100 degrees of freedom
   (4 observations deleted due to missingness)
-Multiple R-squared:  0.05513,	Adjusted R-squared:  0.03624 
-F-statistic: 2.917 on 2 and 100 DF,  p-value: 0.05869
+Multiple R-squared:  0.1149,	Adjusted R-squared:  0.0972 
+F-statistic: 6.491 on 2 and 100 DF,  p-value: 0.002237
 
-[1] 449.4348
-[1] 451.4252
+[1] 320.759
+[1] 322.7498
 Analysis of Variance Table
 
 Model 1: m_m_precuneus ~ hipp_mean_c
 Model 2: m_m_precuneus ~ hipp_mean_c + hipp_mean_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1    101 446.77                           
-2    100 446.73  1  0.041735 0.0093 0.9232
+1    101 128.09                           
+2    100 128.08  1  0.011423 0.0089  0.925
 
 Call:
 lm(formula = m_m_acc ~ cortical_thickness_adsignature_dickson_c, 
@@ -105,19 +105,19 @@ lm(formula = m_m_acc ~ cortical_thickness_adsignature_dickson_c,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--2.7770 -0.7524 -0.2233  0.3295  7.3842 
+-2.0593 -0.6935 -0.1051  0.4860  2.6898 
 
 Coefficients:
                                          Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                               14.3584     0.1495  96.033  < 2e-16 ***
-cortical_thickness_adsignature_dickson_c   4.8567     1.6869   2.879  0.00491 ** 
+(Intercept)                              14.22926    0.09494  149.87  < 2e-16 ***
+cortical_thickness_adsignature_dickson_c  4.65626    1.10329    4.22 5.49e-05 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.488 on 97 degrees of freedom
+Residual standard error: 0.9447 on 97 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.07872,	Adjusted R-squared:  0.06923 
-F-statistic: 8.289 on 1 and 97 DF,  p-value: 0.004908
+Multiple R-squared:  0.1551,	Adjusted R-squared:  0.1464 
+F-statistic: 17.81 on 1 and 97 DF,  p-value: 5.495e-05
 
 
 Call:
@@ -125,31 +125,31 @@ lm(formula = m_m_acc ~ cortical_thickness_adsignature_dickson_c +
     cortical_thickness_adsignature_dickson_sq, data = MRS_full)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--2.6385 -0.7170 -0.1949  0.4117  7.2938 
+     Min       1Q   Median       3Q      Max 
+-2.11984 -0.54627 -0.09169  0.49879  2.75747 
 
 Coefficients:
                                           Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                                14.4888     0.1781  81.370  < 2e-16 ***
-cortical_thickness_adsignature_dickson_c    4.7906     1.6809   2.850  0.00535 ** 
-cortical_thickness_adsignature_dickson_sq -16.5937    12.4299  -1.335  0.18504    
+(Intercept)                                14.3153     0.1163 123.072  < 2e-16 ***
+cortical_thickness_adsignature_dickson_c    4.6746     1.0999   4.250 4.95e-05 ***
+cortical_thickness_adsignature_dickson_sq -11.6153     9.1302  -1.272    0.206    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.482 on 96 degrees of freedom
+Residual standard error: 0.9417 on 96 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.09551,	Adjusted R-squared:  0.07667 
-F-statistic: 5.069 on 2 and 96 DF,  p-value: 0.008077
+Multiple R-squared:  0.1691,	Adjusted R-squared:  0.1518 
+F-statistic: 9.772 on 2 and 96 DF,  p-value: 0.0001372
 
-[1] 363.5728
-[1] 363.7517
+[1] 273.6584
+[1] 274.0033
 Analysis of Variance Table
 
 Model 1: m_m_acc ~ cortical_thickness_adsignature_dickson_c
 Model 2: m_m_acc ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     97 214.67                           
-2     96 210.75  1    3.9126 1.7822  0.185
+1     97 86.562                           
+2     96 85.127  1    1.4352 1.6185 0.2064
 
 Call:
 lm(formula = m_m_precuneus ~ cortical_thickness_adsignature_dickson_c, 
@@ -157,19 +157,19 @@ lm(formula = m_m_precuneus ~ cortical_thickness_adsignature_dickson_c,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.6671 -0.8715 -0.2764  0.6399 18.2750 
+-3.7132 -0.7093 -0.0788  0.7799  3.5011 
 
 Coefficients:
                                          Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                                15.123      0.213  71.013   <2e-16 ***
-cortical_thickness_adsignature_dickson_c    1.108      2.343   0.473    0.637    
+(Intercept)                               14.9821     0.1147 130.636   <2e-16 ***
+cortical_thickness_adsignature_dickson_c   3.1448     1.3019   2.416   0.0175 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.161 on 101 degrees of freedom
+Residual standard error: 1.164 on 101 degrees of freedom
   (4 observations deleted due to missingness)
-Multiple R-squared:  0.002208,	Adjusted R-squared:  -0.007671 
-F-statistic: 0.2235 on 1 and 101 DF,  p-value: 0.6374
+Multiple R-squared:  0.05461,	Adjusted R-squared:  0.04525 
+F-statistic: 5.835 on 1 and 101 DF,  p-value: 0.01751
 
 
 Call:
@@ -178,49 +178,51 @@ lm(formula = m_m_precuneus ~ cortical_thickness_adsignature_dickson_c +
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.4287 -0.8842 -0.3426  0.5757 18.4044 
+-2.8506 -0.7651 -0.0984  0.6366  3.7060 
 
 Coefficients:
                                           Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                                15.2932     0.2554  59.877   <2e-16 ***
-cortical_thickness_adsignature_dickson_c    1.2459     2.3408   0.532    0.596    
-cortical_thickness_adsignature_dickson_sq -20.5829    17.1648  -1.199    0.233    
+(Intercept)                                15.2030     0.1375 110.575  < 2e-16 ***
+cortical_thickness_adsignature_dickson_c    3.4278     1.2665   2.707  0.00799 ** 
+cortical_thickness_adsignature_dickson_sq -28.5037    10.4379  -2.731  0.00747 ** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.157 on 100 degrees of freedom
+Residual standard error: 1.128 on 100 degrees of freedom
   (4 observations deleted due to missingness)
-Multiple R-squared:  0.01635,	Adjusted R-squared:  -0.003321 
-F-statistic: 0.8312 on 2 and 100 DF,  p-value: 0.4385
+Multiple R-squared:  0.1202,	Adjusted R-squared:  0.1026 
+F-statistic: 6.832 on 2 and 100 DF,  p-value: 0.001655
 
-[1] 455.0387
-[1] 455.5682
+[1] 327.5369
+[1] 322.1289
 Analysis of Variance Table
 
 Model 1: m_m_precuneus ~ cortical_thickness_adsignature_dickson_c
 Model 2: m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq
-  Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1    101 471.75                           
-2    100 465.06  1    6.6872 1.4379 0.2333
+  Res.Df    RSS Df Sum of Sq      F   Pr(>F)   
+1    101 136.81                                
+2    100 127.31  1     9.494 7.4572 0.007469 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Call:
 lm(formula = m_m_acc ~ activation_parietal_sup_l_c, data = MRS_full)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--2.9562 -0.7991 -0.1266  0.5791  7.8963 
+     Min       1Q   Median       3Q      Max 
+-2.40631 -0.72223  0.01637  0.65457  2.35418 
 
 Coefficients:
                             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                  14.2860     0.1565  91.273   <2e-16 ***
-activation_parietal_sup_l_c   0.5150     0.2536   2.031   0.0453 *  
+(Intercept)                  14.1847     0.1076 131.839   <2e-16 ***
+activation_parietal_sup_l_c   0.3712     0.1743   2.129   0.0361 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.476 on 87 degrees of freedom
+Residual standard error: 1.015 on 87 degrees of freedom
   (18 observations deleted due to missingness)
-Multiple R-squared:  0.04526,	Adjusted R-squared:  0.03428 
-F-statistic: 4.124 on 1 and 87 DF,  p-value: 0.04534
+Multiple R-squared:  0.04953,	Adjusted R-squared:  0.0386 
+F-statistic: 4.533 on 1 and 87 DF,  p-value: 0.03607
 
 
 Call:
@@ -228,50 +230,50 @@ lm(formula = m_m_acc ~ activation_parietal_sup_l_c + activation_parietal_sup_l_s
     data = MRS_full)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--3.0401 -0.8225 -0.1177  0.5823  7.9265 
+     Min       1Q   Median       3Q      Max 
+-2.36421 -0.71873  0.02587  0.63767  2.37302 
 
 Coefficients:
                              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                   14.1880     0.2013  70.484   <2e-16 ***
-activation_parietal_sup_l_c    0.4554     0.2655   1.715   0.0899 .  
-activation_parietal_sup_l_sq   0.2591     0.3337   0.777   0.4395    
+(Intercept)                   14.1235     0.1385 102.009   <2e-16 ***
+activation_parietal_sup_l_c    0.3340     0.1826   1.829   0.0709 .  
+activation_parietal_sup_l_sq   0.1617     0.2295   0.705   0.4829    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.48 on 86 degrees of freedom
+Residual standard error: 1.018 on 86 degrees of freedom
   (18 observations deleted due to missingness)
-Multiple R-squared:  0.05191,	Adjusted R-squared:  0.02986 
-F-statistic: 2.354 on 2 and 86 DF,  p-value: 0.1011
+Multiple R-squared:  0.05498,	Adjusted R-squared:  0.03301 
+F-statistic: 2.502 on 2 and 86 DF,  p-value: 0.08788
 
-[1] 325.8861
-[1] 327.2641
+[1] 259.1645
+[1] 260.6521
 Analysis of Variance Table
 
 Model 1: m_m_acc ~ activation_parietal_sup_l_c
 Model 2: m_m_acc ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     87 189.61                           
-2     86 188.29  1    1.3206 0.6032 0.4395
+1     87 89.595                           
+2     86 89.081  1   0.51439 0.4966 0.4829
 
 Call:
 lm(formula = m_m_precuneus ~ activation_parietal_sup_l_c, data = MRS_full)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--3.2041 -0.6812 -0.0674  0.7157  2.8356 
+     Min       1Q   Median       3Q      Max 
+-2.81920 -0.68307 -0.07846  0.70301  2.83566 
 
 Coefficients:
                             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                  14.9393     0.1200 124.512  < 2e-16 ***
-activation_parietal_sup_l_c   0.5144     0.1892   2.719  0.00784 ** 
+(Intercept)                  14.9481     0.1176 127.138  < 2e-16 ***
+activation_parietal_sup_l_c   0.4996     0.1854   2.695  0.00838 ** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.163 on 92 degrees of freedom
+Residual standard error: 1.139 on 92 degrees of freedom
   (13 observations deleted due to missingness)
-Multiple R-squared:  0.07436,	Adjusted R-squared:  0.0643 
-F-statistic: 7.391 on 1 and 92 DF,  p-value: 0.007836
+Multiple R-squared:  0.07315,	Adjusted R-squared:  0.06307 
+F-statistic:  7.26 on 1 and 92 DF,  p-value: 0.008379
 
 
 Call:
@@ -280,49 +282,49 @@ lm(formula = m_m_precuneus ~ activation_parietal_sup_l_c + activation_parietal_s
 
 Residuals:
      Min       1Q   Median       3Q      Max 
--3.14445 -0.73587 -0.06218  0.72221  2.80085 
+-2.84356 -0.74368 -0.07137  0.72200  2.80182 
 
 Coefficients:
                              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                   15.0325     0.1511  99.510  < 2e-16 ***
-activation_parietal_sup_l_c    0.5556     0.1935   2.872  0.00508 ** 
-activation_parietal_sup_l_sq  -0.2301     0.2266  -1.015  0.31262    
+(Intercept)                   15.0390     0.1480 101.587  < 2e-16 ***
+activation_parietal_sup_l_c    0.5398     0.1896   2.847  0.00546 ** 
+activation_parietal_sup_l_sq  -0.2243     0.2220  -1.010  0.31504    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.163 on 91 degrees of freedom
+Residual standard error: 1.139 on 91 degrees of freedom
   (13 observations deleted due to missingness)
-Multiple R-squared:  0.08473,	Adjusted R-squared:  0.06461 
-F-statistic: 4.212 on 2 and 91 DF,  p-value: 0.0178
+Multiple R-squared:  0.08343,	Adjusted R-squared:  0.06328 
+F-statistic: 4.141 on 2 and 91 DF,  p-value: 0.01899
 
-[1] 299.1011
-[1] 300.0421
+[1] 295.2881
+[1] 296.2396
 Analysis of Variance Table
 
 Model 1: m_m_precuneus ~ activation_parietal_sup_l_c
 Model 2: m_m_precuneus ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq
-  Res.Df    RSS Df Sum of Sq     F Pr(>F)
-1     92 124.40                          
-2     91 123.01  1    1.3936 1.031 0.3126
+  Res.Df    RSS Df Sum of Sq      F Pr(>F)
+1     92 119.46                           
+2     91 118.13  1     1.325 1.0207  0.315
 
 Call:
 lm(formula = m_m_acc ~ hipp_mean_act_c, data = MRS_full)
 
 Residuals:
-    Min      1Q  Median      3Q     Max 
--3.5688 -0.8746 -0.0217  0.4460  7.6154 
+     Min       1Q   Median       3Q      Max 
+-2.41355 -0.80812  0.09343  0.56821  2.26042 
 
 Coefficients:
                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)      14.2924     0.1593  89.724   <2e-16 ***
-hipp_mean_act_c   0.6139     0.6320   0.971    0.334    
+(Intercept)      14.1893     0.1096 129.497   <2e-16 ***
+hipp_mean_act_c   0.4796     0.4348   1.103    0.273    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.503 on 87 degrees of freedom
+Residual standard error: 1.034 on 87 degrees of freedom
   (18 observations deleted due to missingness)
-Multiple R-squared:  0.01073,	Adjusted R-squared:  -0.0006419 
-F-statistic: 0.9435 on 1 and 87 DF,  p-value: 0.3341
+Multiple R-squared:  0.01379,	Adjusted R-squared:  0.002459 
+F-statistic: 1.217 on 1 and 87 DF,  p-value: 0.273
 
 
 Call:
@@ -330,49 +332,49 @@ lm(formula = m_m_acc ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.4841 -0.8079  0.0991  0.4427  7.5224 
+-2.3680 -0.7798  0.1708  0.5358  2.2279 
 
 Coefficients:
                  Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       14.3923     0.1906  75.493   <2e-16 ***
-hipp_mean_act_c    0.7104     0.6404   1.109    0.270    
-hipp_mean_act_sq  -1.5737     1.6471  -0.955    0.342    
+(Intercept)       14.2431     0.1314 108.386   <2e-16 ***
+hipp_mean_act_c    0.5315     0.4414   1.204    0.232    
+hipp_mean_act_sq  -0.8464     1.1353  -0.746    0.458    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.504 on 86 degrees of freedom
+Residual standard error: 1.036 on 86 degrees of freedom
   (18 observations deleted due to missingness)
-Multiple R-squared:  0.02112,	Adjusted R-squared:  -0.001645 
-F-statistic: 0.9277 on 2 and 86 DF,  p-value: 0.3994
+Multiple R-squared:  0.02013,	Adjusted R-squared:  -0.00266 
+F-statistic: 0.8833 on 2 and 86 DF,  p-value: 0.4171
 
-[1] 329.0478
-[1] 330.1081
+[1] 262.449
+[1] 263.8756
 Analysis of Variance Table
 
 Model 1: m_m_acc ~ hipp_mean_act_c
 Model 2: m_m_acc ~ hipp_mean_act_c + hipp_mean_act_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     87 196.47                           
-2     86 194.41  1    2.0636 0.9129  0.342
+1     87 92.964                           
+2     86 92.367  1   0.59696 0.5558  0.458
 
 Call:
 lm(formula = m_m_precuneus ~ hipp_mean_act_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.9356 -0.7501 -0.0675  0.6617  2.6712 
+-3.4124 -0.7593 -0.0741  0.6556  2.6644 
 
 Coefficients:
                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)      14.9362     0.1221 122.281   <2e-16 ***
-hipp_mean_act_c   0.9582     0.4861   1.971   0.0517 .  
+(Intercept)      14.9453     0.1194  125.15   <2e-16 ***
+hipp_mean_act_c   0.9744     0.4753    2.05   0.0432 *  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.184 on 92 degrees of freedom
+Residual standard error: 1.157 on 92 degrees of freedom
   (13 observations deleted due to missingness)
-Multiple R-squared:  0.04052,	Adjusted R-squared:  0.03009 
-F-statistic: 3.885 on 1 and 92 DF,  p-value: 0.05171
+Multiple R-squared:  0.0437,	Adjusted R-squared:  0.0333 
+F-statistic: 4.204 on 1 and 92 DF,  p-value: 0.04318
 
 
 Call:
@@ -381,49 +383,49 @@ lm(formula = m_m_precuneus ~ hipp_mean_act_c + hipp_mean_act_sq,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--3.8779 -0.7803 -0.0558  0.7025  2.8320 
+-3.3584 -0.7847 -0.0608  0.6953  2.8044 
 
 Coefficients:
                  Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       15.0010     0.1472 101.909   <2e-16 ***
-hipp_mean_act_c    1.0135     0.4921   2.060   0.0423 *  
-hipp_mean_act_sq  -1.0214     1.2886  -0.793   0.4300    
+(Intercept)       15.0059     0.1440 104.241   <2e-16 ***
+hipp_mean_act_c    1.0261     0.4812   2.132   0.0357 *  
+hipp_mean_act_sq  -0.9553     1.2602  -0.758   0.4504    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.186 on 91 degrees of freedom
+Residual standard error: 1.16 on 91 degrees of freedom
   (13 observations deleted due to missingness)
-Multiple R-squared:  0.0471,	Adjusted R-squared:  0.02616 
-F-statistic: 2.249 on 2 and 91 DF,  p-value: 0.1113
+Multiple R-squared:  0.0497,	Adjusted R-squared:  0.02881 
+F-statistic:  2.38 on 2 and 91 DF,  p-value: 0.09833
 
-[1] 302.4762
-[1] 303.8294
+[1] 298.2282
+[1] 299.6365
 Analysis of Variance Table
 
 Model 1: m_m_precuneus ~ hipp_mean_act_c
 Model 2: m_m_precuneus ~ hipp_mean_act_c + hipp_mean_act_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     92 128.95                           
-2     91 128.06  1   0.88423 0.6283   0.43
+1     92 123.25                           
+2     91 122.48  1   0.77344 0.5747 0.4504
 
 Call:
 lm(formula = memoria_libre_correcte ~ m_m_acc_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.5627 -1.3811 -0.0964  1.8370  4.8942 
+-5.6401 -1.6239  0.0965  1.9210  5.1005 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  7.21446    0.25287  28.530   <2e-16 ***
-m_m_acc_c    0.06272    0.16402   0.382    0.703    
+(Intercept)   7.2151     0.2522  28.605   <2e-16 ***
+m_m_acc_c     0.1968     0.2469   0.797    0.427    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.503 on 96 degrees of freedom
+Residual standard error: 2.497 on 96 degrees of freedom
   (9 observations deleted due to missingness)
-Multiple R-squared:  0.001521,	Adjusted R-squared:  -0.00888 
-F-statistic: 0.1462 on 1 and 96 DF,  p-value: 0.703
+Multiple R-squared:  0.006576,	Adjusted R-squared:  -0.003772 
+F-statistic: 0.6355 on 1 and 96 DF,  p-value: 0.4273
 
 
 Call:
@@ -432,49 +434,49 @@ lm(formula = memoria_libre_correcte ~ m_m_acc_c + m_m_acc_sq,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.5491 -1.5549  0.1936  1.9557  5.2047 
+-5.5064 -1.5061  0.1958  1.9296  5.4650 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  7.34492    0.27417  26.790   <2e-16 ***
-m_m_acc_c    0.22264    0.21002   1.060    0.292    
-m_m_acc_sq  -0.05471    0.04504  -1.215    0.228    
+(Intercept)   7.4682     0.3113  23.994   <2e-16 ***
+m_m_acc_c     0.1931     0.2457   0.786    0.434    
+m_m_acc_sq   -0.2425     0.1763  -1.376    0.172    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.497 on 95 degrees of freedom
+Residual standard error: 2.485 on 95 degrees of freedom
   (9 observations deleted due to missingness)
-Multiple R-squared:  0.01679,	Adjusted R-squared:  -0.003912 
-F-statistic: 0.811 on 2 and 95 DF,  p-value: 0.4475
+Multiple R-squared:  0.02599,	Adjusted R-squared:  0.005484 
+F-statistic: 1.267 on 2 and 95 DF,  p-value: 0.2863
 
-[1] 461.9426
-[1] 462.4326
+[1] 461.4451
+[1] 461.5111
 Analysis of Variance Table
 
 Model 1: memoria_libre_correcte ~ m_m_acc_c
 Model 2: memoria_libre_correcte ~ m_m_acc_c + m_m_acc_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     96 601.58                           
-2     95 592.39  1     9.198 1.4751 0.2276
+1     96 598.54                           
+2     95 586.84  1    11.696 1.8934  0.172
 
 Call:
 lm(formula = memoria_libre_correcte ~ m_m_precuneus_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.3196 -1.3253 -0.1314  1.8236  4.8283 
+-6.3584 -1.6094  0.1091  1.9681  5.1749 
 
 Coefficients:
                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)      7.21919    0.25008  28.868   <2e-16 ***
-m_m_precuneus_c -0.06495    0.11727  -0.554    0.581    
+(Intercept)       7.2119     0.2469  29.212   <2e-16 ***
+m_m_precuneus_c   0.3665     0.2151   1.704   0.0915 .  
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.513 on 99 degrees of freedom
+Residual standard error: 2.481 on 99 degrees of freedom
   (6 observations deleted due to missingness)
-Multiple R-squared:  0.003089,	Adjusted R-squared:  -0.006981 
-F-statistic: 0.3067 on 1 and 99 DF,  p-value: 0.5809
+Multiple R-squared:  0.0285,	Adjusted R-squared:  0.01868 
+F-statistic: 2.904 on 1 and 99 DF,  p-value: 0.0915
 
 
 Call:
@@ -483,30 +485,30 @@ lm(formula = memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--6.3294 -1.6091  0.0895  1.9321  5.2719 
+-5.7574 -1.7604  0.4275  2.0075  5.1942 
 
 Coefficients:
                  Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       7.41429    0.24482  30.284  < 2e-16 ***
-m_m_precuneus_c   0.52013    0.20612   2.523  0.01323 *  
-m_m_precuneus_sq -0.04560    0.01351  -3.376  0.00106 ** 
+(Intercept)        7.6251     0.2837  26.875  < 2e-16 ***
+m_m_precuneus_c    0.4444     0.2105   2.111  0.03727 *  
+m_m_precuneus_sq  -0.3146     0.1160  -2.712  0.00791 ** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.391 on 98 degrees of freedom
+Residual standard error: 2.405 on 98 degrees of freedom
   (6 observations deleted due to missingness)
-Multiple R-squared:  0.1069,	Adjusted R-squared:  0.0887 
-F-statistic: 5.867 on 2 and 98 DF,  p-value: 0.003921
+Multiple R-squared:  0.09631,	Adjusted R-squared:  0.07786 
+F-statistic: 5.222 on 2 and 98 DF,  p-value: 0.006999
 
-[1] 476.755
-[1] 467.6455
+[1] 474.1476
+[1] 468.8398
 Analysis of Variance Table
 
 Model 1: memoria_libre_correcte ~ m_m_precuneus_c
 Model 2: memoria_libre_correcte ~ m_m_precuneus_c + m_m_precuneus_sq
   Res.Df    RSS Df Sum of Sq      F   Pr(>F)   
-1     99 625.27                                
-2     98 560.14  1    65.129 11.395 0.001057 **
+1     99 609.33                                
+2     98 566.80  1    42.531 7.3536 0.007905 **
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
@@ -515,19 +517,19 @@ lm(formula = face_name_rappel_differe_spectro ~ m_m_acc_c, data = MRS_full)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--4.8925 -1.9026  0.0984  2.1016  4.3500 
+-4.9222 -1.9417  0.0601  2.0664  4.5481 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)   4.8990     0.2562  19.124   <2e-16 ***
-m_m_acc_c     0.1438     0.1670   0.861    0.391    
+(Intercept)   4.8990     0.2555   19.17   <2e-16 ***
+m_m_acc_c     0.2788     0.2512    1.11     0.27    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.549 on 97 degrees of freedom
+Residual standard error: 2.542 on 97 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.007584,	Adjusted R-squared:  -0.002647 
-F-statistic: 0.7413 on 1 and 97 DF,  p-value: 0.3914
+Multiple R-squared:  0.01255,	Adjusted R-squared:  0.002366 
+F-statistic: 1.232 on 1 and 97 DF,  p-value: 0.2697
 
 
 Call:
@@ -536,30 +538,30 @@ lm(formula = face_name_rappel_differe_spectro ~ m_m_acc_c + m_m_acc_sq,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--4.9910 -2.0093  0.0218  2.0409  4.6030 
+-5.0346 -2.0498 -0.0225  1.9561  4.7131 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  5.00345    0.27812  17.990   <2e-16 ***
-m_m_acc_c    0.27335    0.21419   1.276    0.205    
-m_m_acc_sq  -0.04438    0.04592  -0.967    0.336    
+(Intercept)   5.0123     0.3172  15.800   <2e-16 ***
+m_m_acc_c     0.2768     0.2520   1.098    0.275    
+m_m_acc_sq   -0.1095     0.1805  -0.606    0.546    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.55 on 96 degrees of freedom
+Residual standard error: 2.551 on 96 degrees of freedom
   (8 observations deleted due to missingness)
-Multiple R-squared:  0.01715,	Adjusted R-squared:  -0.003328 
-F-statistic: 0.8375 on 2 and 96 DF,  p-value: 0.4359
+Multiple R-squared:  0.01631,	Adjusted R-squared:  -0.004179 
+F-statistic: 0.7961 on 2 and 96 DF,  p-value: 0.454
 
-[1] 470.1866
-[1] 471.2279
+[1] 469.6904
+[1] 471.3118
 Analysis of Variance Table
 
 Model 1: face_name_rappel_differe_spectro ~ m_m_acc_c
 Model 2: face_name_rappel_differe_spectro ~ m_m_acc_c + m_m_acc_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1     97 630.17                           
-2     96 624.10  1     6.073 0.9342 0.3362
+1     97 627.02                           
+2     96 624.63  1    2.3931 0.3678 0.5456
 
 Call:
 lm(formula = face_name_rappel_differe_spectro ~ m_m_precuneus_c, 
@@ -567,19 +569,19 @@ lm(formula = face_name_rappel_differe_spectro ~ m_m_precuneus_c,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.0535 -1.9971  0.0666  2.0181  4.0418 
+-5.1163 -2.0013  0.0663  2.0052  4.2118 
 
 Coefficients:
                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)      5.00201    0.25020  19.992   <2e-16 ***
-m_m_precuneus_c -0.05973    0.11768  -0.508    0.613    
+(Intercept)       4.9962     0.2502   19.97   <2e-16 ***
+m_m_precuneus_c   0.1239     0.2173    0.57     0.57    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.527 on 100 degrees of freedom
+Residual standard error: 2.526 on 100 degrees of freedom
   (5 observations deleted due to missingness)
-Multiple R-squared:  0.002569,	Adjusted R-squared:  -0.007405 
-F-statistic: 0.2576 on 1 and 100 DF,  p-value: 0.6129
+Multiple R-squared:  0.003243,	Adjusted R-squared:  -0.006725 
+F-statistic: 0.3253 on 1 and 100 DF,  p-value: 0.5697
 
 
 Call:
@@ -587,28 +589,28 @@ lm(formula = face_name_rappel_differe_spectro ~ m_m_precuneus_c +
     m_m_precuneus_sq, data = MRS_full)
 
 Residuals:
-   Min     1Q Median     3Q    Max 
--5.255 -2.001  0.095  1.943  4.375 
+    Min      1Q  Median      3Q     Max 
+-5.2150 -2.1478  0.2363  1.8906  4.5135 
 
 Coefficients:
                  Estimate Std. Error t value Pr(>|t|)    
-(Intercept)       5.09046    0.25513  19.953   <2e-16 ***
-m_m_precuneus_c   0.21653    0.21474   1.008    0.316    
-m_m_precuneus_sq -0.02162    0.01410  -1.534    0.128    
+(Intercept)        5.2029     0.2962  17.563   <2e-16 ***
+m_m_precuneus_c    0.1635     0.2187   0.747    0.457    
+m_m_precuneus_sq  -0.1568     0.1214  -1.292    0.199    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 2.51 on 99 degrees of freedom
+Residual standard error: 2.517 on 99 degrees of freedom
   (5 observations deleted due to missingness)
-Multiple R-squared:  0.02572,	Adjusted R-squared:  0.006035 
-F-statistic: 1.307 on 2 and 99 DF,  p-value: 0.2754
+Multiple R-squared:  0.01977,	Adjusted R-squared:  -3.768e-05 
+F-statistic: 0.9981 on 2 and 99 DF,  p-value: 0.3723
 
-[1] 482.5236
-[1] 482.1285
+[1] 482.4547
+[1] 482.7498
 Analysis of Variance Table
 
 Model 1: face_name_rappel_differe_spectro ~ m_m_precuneus_c
 Model 2: face_name_rappel_differe_spectro ~ m_m_precuneus_c + m_m_precuneus_sq
   Res.Df    RSS Df Sum of Sq      F Pr(>F)
-1    100 638.36                           
-2     99 623.54  1    14.815 2.3521 0.1283
+1    100 637.92                           
+2     99 627.35  1    10.574 1.6687 0.1994
