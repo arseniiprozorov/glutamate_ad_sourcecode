@@ -1,0 +1,559 @@
+      
+        F  H
+  HC   45 13
+  SCD+ 14  6
+  MCI  10 19
+
+	Pearson's Chi-squared test
+
+data:  participant_sex
+X-squared = 16.011, df = 2, p-value = 0.0003336
+
+
+	Fisher's Exact Test for Count Data
+
+data:  participant_sex[c("HC", "SCD+"), ]
+p-value = 0.551
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.3857761 5.1937634
+sample estimates:
+odds ratio 
+  1.475659 
+
+
+	Fisher's Exact Test for Count Data
+
+data:  participant_sex[c("HC", "MCI"), ]
+p-value = 0.000136
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  2.219955 19.827957
+sample estimates:
+odds ratio 
+  6.408708 
+
+
+	Fisher's Exact Test for Count Data
+
+data:  participant_sex[c("SCD+", "MCI"), ]
+p-value = 0.02086
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  1.125942 18.324639
+sample estimates:
+odds ratio 
+  4.288881 
+
+
+ DESCRIPTIVES
+
+ Descriptives                                             
+ ──────────────────────────────────────────────────────── 
+                         diagnostic_nick    age_spectro   
+ ──────────────────────────────────────────────────────── 
+   N                     HC                          58   
+                         SCD+                        20   
+                         MCI                         29   
+   Missing               HC                           0   
+                         SCD+                         0   
+                         MCI                          0   
+   Mean                  HC                    72.71724   
+                         SCD+                  77.10500   
+                         MCI                   77.51724   
+   Median                HC                    72.35000   
+                         SCD+                  76.20000   
+                         MCI                   76.90000   
+   Standard deviation    HC                    4.710017   
+                         SCD+                  3.762624   
+                         MCI                   6.244544   
+   Range                 HC                    18.70000   
+                         SCD+                  14.10000   
+                         MCI                   27.90000   
+   Minimum               HC                    65.70000   
+                         SCD+                  71.70000   
+                         MCI                   66.30000   
+   Maximum               HC                    84.40000   
+                         SCD+                  85.80000   
+                         MCI                   94.20000   
+ ──────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  571.8  285.91   11.33 3.55e-05 ***
+Residuals       104 2625.3   25.24                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = age_spectro ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+              diff       lwr      upr     p adj
+SCD+-HC  4.3877586  1.289932 7.485585 0.0030295
+MCI-HC   4.8000000  2.083027 7.516973 0.0001656
+MCI-SCD+ 0.4122414 -3.060103 3.884586 0.9570427
+
+
+ DESCRIPTIVES
+
+ Descriptives                                           
+ ────────────────────────────────────────────────────── 
+                         diagnostic_nick    education   
+ ────────────────────────────────────────────────────── 
+   N                     HC                        58   
+                         SCD+                      20   
+                         MCI                       29   
+   Missing               HC                         0   
+                         SCD+                       0   
+                         MCI                        0   
+   Mean                  HC                  14.93103   
+                         SCD+                17.70000   
+                         MCI                 15.17241   
+   Median                HC                  15.00000   
+                         SCD+                18.00000   
+                         MCI                 16.00000   
+   Standard deviation    HC                  2.949053   
+                         SCD+                3.213459   
+                         MCI                 4.621912   
+   Minimum               HC                  9.000000   
+                         SCD+                12.00000   
+                         MCI                 5.000000   
+   Maximum               HC                  21.00000   
+                         SCD+                23.00000   
+                         MCI                 22.00000   
+ ────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value Pr(>F)  
+diagnostic_nick   2  118.7   59.33   4.783 0.0103 *
+Residuals       104 1290.1   12.40                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = education ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff        lwr         upr     p adj
+SCD+-HC   2.7689655  0.5974142  4.94051680 0.0085503
+MCI-HC    0.2413793 -1.6631972  2.14595578 0.9511991
+MCI-SCD+ -2.5275862 -4.9616717 -0.09350072 0.0399192
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                   
+ ────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    moca_corr_spectro   
+ ────────────────────────────────────────────────────────────── 
+   N                     HC                                57   
+                         SCD+                              20   
+                         MCI                               29   
+   Missing               HC                                 1   
+                         SCD+                               0   
+                         MCI                                0   
+   Mean                  HC                          27.73684   
+                         SCD+                        28.05000   
+                         MCI                         24.17672   
+   Median                HC                          28.00000   
+                         SCD+                        28.00000   
+                         MCI                         24.00000   
+   Standard deviation    HC                          1.329961   
+                         SCD+                        1.571958   
+                         MCI                         2.209587   
+   Minimum               HC                          25.00000   
+                         SCD+                        25.00000   
+                         MCI                         21.87500   
+   Maximum               HC                          30.00000   
+                         SCD+                        30.00000   
+                         MCI                         29.00000   
+ ────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  280.8  140.40   51.15 3.74e-16 ***
+Residuals       103  282.7    2.74                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+1 observation deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = moca_corr_spectro ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff        lwr       upr     p adj
+SCD+-HC   0.3131579 -0.7107627  1.337079 0.7478932
+MCI-HC   -3.5601180 -4.4587588 -2.661477 0.0000000
+MCI-SCD+ -3.8732759 -5.0184127 -2.728139 0.0000000
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                        
+ ─────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    memoria_libre_correcte   
+ ─────────────────────────────────────────────────────────────────── 
+   N                     HC                                     56   
+                         SCD+                                   20   
+                         MCI                                    29   
+   Missing               HC                                      2   
+                         SCD+                                    0   
+                         MCI                                     0   
+   Mean                  HC                               7.821429   
+                         SCD+                             7.950000   
+                         MCI                              5.379310   
+   Median                HC                               8.000000   
+                         SCD+                             8.500000   
+                         MCI                              6.000000   
+   Standard deviation    HC                               2.382567   
+                         SCD+                             2.438183   
+                         MCI                              1.820789   
+   Minimum               HC                               2.000000   
+                         SCD+                             2.000000   
+                         MCI                              2.000000   
+   Maximum               HC                               12.00000   
+                         SCD+                             12.00000   
+                         MCI                              10.00000   
+ ─────────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  128.9   64.46   12.69 1.19e-05 ***
+Residuals       102  518.0    5.08                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+2 observations deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = memoria_libre_correcte ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff       lwr       upr     p adj
+SCD+-HC   0.1285714 -1.267622  1.524765 0.9739087
+MCI-HC   -2.4421182 -3.668327 -1.215910 0.0000209
+MCI-SCD+ -2.5706897 -4.128562 -1.012817 0.0004604
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                                  
+ ───────────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    face_name_rappel_differe_spectro   
+ ───────────────────────────────────────────────────────────────────────────── 
+   N                     HC                                               57   
+                         SCD+                                             20   
+                         MCI                                              29   
+   Missing               HC                                                1   
+                         SCD+                                              0   
+                         MCI                                               0   
+   Mean                  HC                                         5.157895   
+                         SCD+                                       6.300000   
+                         MCI                                        3.413793   
+   Median                HC                                         6.000000   
+                         SCD+                                       6.500000   
+                         MCI                                        3.000000   
+   Standard deviation    HC                                         2.462501   
+                         SCD+                                       2.273416   
+                         MCI                                        2.212259   
+   Minimum               HC                                         0.000000   
+                         SCD+                                       1.000000   
+                         MCI                                        0.000000   
+   Maximum               HC                                         9.000000   
+                         SCD+                                       9.000000   
+                         MCI                                        8.000000   
+ ───────────────────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  107.0   53.52   9.591 0.000151 ***
+Residuals       103  574.8    5.58                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+1 observation deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = face_name_rappel_differe_spectro ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+              diff        lwr       upr     p adj
+SCD+-HC   1.142105 -0.3179255  2.602136 0.1555598
+MCI-HC   -1.744102 -3.0254932 -0.462710 0.0045977
+MCI-SCD+ -2.886207 -4.5190826 -1.253331 0.0001650
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                                  
+ ───────────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    face_name_rappel_differe_spectro   
+ ───────────────────────────────────────────────────────────────────────────── 
+   N                     HC                                               57   
+                         SCD+                                             20   
+                         MCI                                              29   
+   Missing               HC                                                1   
+                         SCD+                                              0   
+                         MCI                                               0   
+   Mean                  HC                                         5.157895   
+                         SCD+                                       6.300000   
+                         MCI                                        3.413793   
+   Median                HC                                         6.000000   
+                         SCD+                                       6.500000   
+                         MCI                                        3.000000   
+   Standard deviation    HC                                         2.462501   
+                         SCD+                                       2.273416   
+                         MCI                                        2.212259   
+   Minimum               HC                                         0.000000   
+                         SCD+                                       1.000000   
+                         MCI                                        0.000000   
+   Maximum               HC                                         9.000000   
+                         SCD+                                       9.000000   
+                         MCI                                        8.000000   
+ ───────────────────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  107.0   53.52   9.591 0.000151 ***
+Residuals       103  574.8    5.58                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+1 observation deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = face_name_rappel_differe_spectro ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+              diff        lwr       upr     p adj
+SCD+-HC   1.142105 -0.3179255  2.602136 0.1555598
+MCI-HC   -1.744102 -3.0254932 -0.462710 0.0045977
+MCI-SCD+ -2.886207 -4.5190826 -1.253331 0.0001650
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                                
+ ─────────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    associative_memory_performance   
+ ─────────────────────────────────────────────────────────────────────────── 
+   N                     HC                                             57   
+                         SCD+                                           20   
+                         MCI                                            29   
+   Missing               HC                                              1   
+                         SCD+                                            0   
+                         MCI                                             0   
+   Mean                  HC                                       2.465149   
+                         SCD+                                     2.080156   
+                         MCI                                      1.314525   
+   Median                HC                                       2.107504   
+                         SCD+                                     2.004570   
+                         MCI                                      1.070399   
+   Standard deviation    HC                                       1.510563   
+                         SCD+                                     1.081435   
+                         MCI                                      1.077395   
+   Minimum               HC                                      0.2317497   
+                         SCD+                                    0.5085361   
+                         MCI                                     0.2563572   
+   Maximum               HC                                       6.057216   
+                         SCD+                                     5.032619   
+                         MCI                                      3.741445   
+ ─────────────────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value Pr(>F)   
+diagnostic_nick   2  25.45  12.724   7.181 0.0012 **
+Residuals       103 182.50   1.772                  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+1 observation deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = associative_memory_performance ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff       lwr        upr     p adj
+SCD+-HC  -0.3849931 -1.207679  0.4376923 0.5083561
+MCI-HC   -1.1506240 -1.872651 -0.4285966 0.0007383
+MCI-SCD+ -0.7656308 -1.685709  0.1544477 0.1225794
+
+
+ DESCRIPTIVES
+
+ Descriptives                                                           
+ ────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    m_m_precuneus    m_m_acc    
+ ────────────────────────────────────────────────────────────────────── 
+   N                     HC                            54          52   
+                         SCD+                          20          18   
+                         MCI                           29          29   
+   Missing               HC                             4           6   
+                         SCD+                           0           2   
+                         MCI                            0           0   
+   Mean                  HC                      15.56964    14.73990   
+                         SCD+                    14.68656    13.76887   
+                         MCI                     14.59781    14.03083   
+   Median                HC                      15.27500    14.50373   
+                         SCD+                    14.70668    14.25810   
+                         MCI                     14.26184    13.87792   
+   Standard deviation    HC                      2.669889    1.516495   
+                         SCD+                   0.7778291    1.035652   
+                         MCI                     1.475010    1.696152   
+   IQR                   HC                      1.319952    1.169802   
+                         SCD+                   0.8906508    1.609573   
+                         MCI                     1.706031    1.328873   
+   Minimum               HC                      11.69679    13.09479   
+                         SCD+                    13.30691    11.61328   
+                         MCI                     11.35940    10.95352   
+   Maximum               HC                      33.26847    21.97151   
+                         SCD+                    16.88795    15.14080   
+                         MCI                     18.08439    19.90746   
+ ────────────────────────────────────────────────────────────────────── 
+
+                Df Sum Sq Mean Sq F value Pr(>F)  
+diagnostic_nick  2  16.94   8.468   3.762 0.0267 *
+Residuals       96 216.08   2.251                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+8 observations deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = m_m_acc ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff        lwr         upr     p adj
+SCD+-HC  -0.9710372 -1.9477474 0.005673074 0.0516950
+MCI-HC   -0.7090732 -1.5368180 0.118671651 0.1083915
+MCI-SCD+  0.2619640 -0.8097239 1.333651843 0.8301092
+
+# Effect Size for ANOVA
+
+Parameter       | Eta2 |       95% CI
+-------------------------------------
+diagnostic_nick | 0.07 | [0.00, 1.00]
+
+- One-sided CIs: upper bound fixed at [1.00].                 Df Sum Sq Mean Sq F value Pr(>F)  
+diagnostic_nick   2   22.6  11.290   2.508 0.0866 .
+Residuals       100  450.2   4.502                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+4 observations deleted due to missingness
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = m_m_precuneus ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+                diff       lwr       upr     p adj
+SCD+-HC  -0.88308166 -2.204463 0.4383002 0.2546865
+MCI-HC   -0.97183398 -2.133998 0.1903303 0.1200733
+MCI-SCD+ -0.08875233 -1.556017 1.3785121 0.9886489
+
+# Effect Size for ANOVA
+
+Parameter       | Eta2 |       95% CI
+-------------------------------------
+diagnostic_nick | 0.05 | [0.00, 1.00]
+
+- One-sided CIs: upper bound fixed at [1.00].
+ DESCRIPTIVES
+
+ Descriptives                                                                                     
+ ──────────────────────────────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    hipp_mean    cortical_thickness_adsignature_dickson   
+ ──────────────────────────────────────────────────────────────────────────────────────────────── 
+   N                     HC                        58                                        58   
+                         SCD+                      20                                        20   
+                         MCI                       29                                        29   
+   Missing               HC                         0                                         0   
+                         SCD+                       0                                         0   
+                         MCI                        0                                         0   
+   Mean                  HC                  2.517534                                  2.471468   
+                         SCD+                2.275406                                  2.424365   
+                         MCI                 2.389437                                  2.439406   
+   Median                HC                  2.531309                                  2.473004   
+                         SCD+                2.237670                                  2.418608   
+                         MCI                 2.405235                                  2.417383   
+   Standard deviation    HC                 0.1823570                                0.07343851   
+                         SCD+               0.2353781                                0.07177648   
+                         MCI                0.3387652                                 0.1225212   
+   IQR                   HC                 0.2221798                                0.09114792   
+                         SCD+               0.2648171                                0.07021042   
+                         MCI                0.4642644                                 0.1597417   
+   Minimum               HC                  2.052260                                  2.336717   
+                         SCD+                1.870556                                  2.247692   
+                         MCI                 1.410865                                  2.207700   
+   Maximum               HC                  2.909360                                  2.671158   
+                         SCD+                2.819008                                  2.567408   
+                         MCI                 2.986270                                  2.679717   
+ ──────────────────────────────────────────────────────────────────────────────────────────────── 
+
+                 Df Sum Sq Mean Sq F value   Pr(>F)    
+diagnostic_nick   2  0.964  0.4820   8.136 0.000522 ***
+Residuals       104  6.161  0.0592                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = hipp_mean ~ diagnostic_nick, data = MRS_full)
+
+$diagnostic_nick
+               diff        lwr          upr     p adj
+SCD+-HC  -0.2421273 -0.3922018 -0.092052787 0.0006242
+MCI-HC   -0.1280965 -0.2597206  0.003527521 0.0582537
+MCI-SCD+  0.1140308 -0.0541873  0.282248824 0.2452214
+
+# Effect Size for ANOVA
+
+Parameter       | Eta2 |       95% CI
+-------------------------------------
+diagnostic_nick | 0.14 | [0.04, 1.00]
+
+- One-sided CIs: upper bound fixed at [1.00].                 Df Sum Sq  Mean Sq F value Pr(>F)  
+diagnostic_nick   2 0.0414 0.020719    2.61 0.0784 .
+Residuals       104 0.8256 0.007939                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+ DESCRIPTIVES
+
+ Descriptives                                                                            
+ ─────────────────────────────────────────────────────────────────────────────────────── 
+                         diagnostic_nick    hipp_mean_act    activation_parietal_sup_l   
+ ─────────────────────────────────────────────────────────────────────────────────────── 
+   N                     HC                            52                           52   
+                         SCD+                          19                           19   
+                         MCI                           26                           26   
+   Missing               HC                             6                            6   
+                         SCD+                           1                            1   
+                         MCI                            3                            3   
+   Mean                  HC                     0.1161081                    0.4082104   
+                         SCD+                   0.1396563                    0.7073110   
+                         MCI                    0.2014767                    0.3067212   
+   Median                HC                     0.1181108                    0.4105274   
+                         SCD+                   0.1286980                    0.7241873   
+                         MCI                    0.1139315                    0.2686395   
+   Standard deviation    HC                     0.2519876                    0.6149686   
+                         SCD+                   0.2467027                    0.7256454   
+                         MCI                    0.2707114                    0.5824245   
+   IQR                   HC                     0.3164454                    0.8091778   
+                         SCD+                   0.2203696                    0.8563005   
+                         MCI                    0.3193739                    0.4331521   
+   Minimum               HC                    -0.4809762                   -0.8825939   
+                         SCD+                  -0.4809762                    -1.073125   
+                         MCI                   -0.2141124                   -0.5077502   
+   Maximum               HC                     0.7338414                     1.665521   
+                         SCD+                   0.7338414                     1.880074   
+                         MCI                    0.7338414                     1.965734   
+ ─────────────────────────────────────────────────────────────────────────────────────── 
+
+                Df Sum Sq Mean Sq F value Pr(>F)
+diagnostic_nick  2  0.127 0.06334   0.966  0.384
+Residuals       94  6.166 0.06560               
+10 observations deleted due to missingness
+                Df Sum Sq Mean Sq F value Pr(>F)  
+diagnostic_nick  2   1.87  0.9360   2.362 0.0998 .
+Residuals       94  37.25  0.3962                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+10 observations deleted due to missingness
