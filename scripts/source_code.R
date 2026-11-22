@@ -386,7 +386,6 @@ plot(med_comb)
 
 
 
-
 #### With robmed package ####
 library(robmed)
 

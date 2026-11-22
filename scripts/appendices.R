@@ -548,6 +548,13 @@ summary(med_comb)
 plot(med_comb)
 
 
+# 2. Sequential ignorability sensitivity analysis (Imai, Keele, & Yamamoto, 2010)
+sens_comb <- medsens(med_comb, rho.by = 0.05, effect.type = "indirect", sims = 5000)
+summary(sens_comb)
+plot(sens_comb, sens.par = "rho", main = "Sensitivity to Unmeasured M-Y Confounding (rho)")
+plot(sens_comb, sens.par = "R2", r.type = "total", sign.prod = "positive")
+
+
 # B. Individual Region-Pair Linear Models
 # 1. Cortical Thickness -> ACC Glu -> Superior Parietal Activation
 model_m_1 <- lm(acc_glu_z ~ thick_z, data = mediation_combined)
@@ -613,7 +620,7 @@ med_8 <- mediate(model_m_8, model_y_8, treat = "hipp_vol_z", mediator = "prec_gl
 summary(med_8)
 plot(med_8)
 
-
+#sink("quadratic_mediation.txt") 
 # C. Quadratic Path-a Models (N = 88 complete-case subset)
 mediation_sq <- mediation_combined[, c("prec_glu_z", 
                                        "thick_z", 
@@ -625,21 +632,120 @@ model_m_9 <- lm(prec_glu_z ~ thick_z + I(thick_z^2), data = mediation_sq)
 summary(model_m_9)
 model_y_9 <- lm(parietal_act_z ~ thick_z + prec_glu_z, data = mediation_sq)
 summary(model_y_9)
-med_9 <- mediate(model_m_9, model_y_9, treat = "thick_z", mediator = "prec_glu_z", boot = TRUE, sims = 5000)
-summary(med_9)
-plot(med_9)
+#med_9 <- mediate(model_m_9, model_y_9, treat = "thick_z", mediator = "prec_glu_z", boot = TRUE, sims = 5000)
+#summary(med_9)
+#plot(med_9)
+
+B <- 5000
+x_grid <- c(-1, 0, 1)
+n <- nrow(mediation_sq)
+
+boot_theta_9 <- matrix(NA_real_, nrow = B, ncol = length(x_grid))
+colnames(boot_theta_9) <- paste0("x_", x_grid)
+boot_ade_9 <- numeric(B)
+
+for (i in seq_len(B)) {
+  idx <- sample.int(n, size = n, replace = TRUE)
+  d_b <- mediation_sq[idx, ]
+  
+  fit_m <- lm(prec_glu_z ~ thick_z + I(thick_z^2), data = d_b)
+  fit_y <- lm(parietal_act_z ~ thick_z + prec_glu_z, data = d_b)
+  
+  a1 <- coef(fit_m)["thick_z"]
+  a2 <- coef(fit_m)["I(thick_z^2)"]
+  b  <- coef(fit_y)["prec_glu_z"]
+  
+  boot_theta_9[i, ] <- (a1 + 2 * a2 * x_grid) * b
+  boot_ade_9[i]     <- coef(fit_y)["thick_z"]}
+
+a1_hat_9 <- coef(model_m_9)["thick_z"]
+a2_hat_9 <- coef(model_m_9)["I(thick_z^2)"]
+b_hat_9  <- coef(model_y_9)["prec_glu_z"]
+
+theta_hat_9 <- (a1_hat_9 + 2 * a2_hat_9 * x_grid) * b_hat_9
+ci_95_9     <- apply(boot_theta_9, 2, quantile, probs = c(0.025, 0.975))
+p_boot_9    <- apply(boot_theta_9, 2, function(d) 2 * min(mean(d >= 0), mean(d <= 0)))
+slope_boot_9 <- boot_theta_9[, "x_1"] - boot_theta_9[, "x_0"]
+
+# Summary table for Model 9 (Superior Parietal)
+rbind(
+  data.frame(
+    term    = paste0("theta_", x_grid),
+    est     = theta_hat_9,
+    ci_low  = ci_95_9[1, ],
+    ci_high = ci_95_9[2, ],
+    p_boot  = p_boot_9,
+    row.names = NULL
+  ),
+  data.frame(
+    term    = c("slope_2a2b", "ADE_c_prime"),
+    est     = c(unname(theta_hat_9[3] - theta_hat_9[2]), unname(coef(model_y_9)["thick_z"])),
+    ci_low  = c(quantile(slope_boot_9, 0.025)[[1]], quantile(boot_ade_9, 0.025)[[1]]),
+    ci_high = c(quantile(slope_boot_9, 0.975)[[1]], quantile(boot_ade_9, 0.975)[[1]]),
+    p_boot  = c(2 * min(mean(slope_boot_9 >= 0), mean(slope_boot_9 <= 0)),
+                2 * min(mean(boot_ade_9 >= 0), mean(boot_ade_9 <= 0)))))
+
+
 
 # 10. Quadratic: Cortical Thickness -> Precuneus Glu -> Hippocampal Activation
 model_m_10 <- lm(prec_glu_z ~ thick_z + I(thick_z^2), data = mediation_sq)
 summary(model_m_10)
 model_y_10 <- lm(hipp_act_z ~ thick_z + prec_glu_z, data = mediation_sq)
 summary(model_y_10)
-med_10 <- mediate(model_m_10, model_y_10, treat = "thick_z", mediator = "prec_glu_z", boot = TRUE, sims = 5000)
-summary(med_10)
-plot(med_10)
+#med_10 <- mediate(model_m_10, model_y_10, treat = "thick_z", mediator = "prec_glu_z", boot = TRUE, sims = 5000)
+#summary(med_10)
+#plot(med_10)
 
+boot_theta_10 <- matrix(NA_real_, nrow = B, ncol = length(x_grid))
+colnames(boot_theta_10) <- paste0("x_", x_grid)
+boot_ade_10 <- numeric(B)
+
+for (i in seq_len(B)) {
+  idx <- sample.int(n, size = n, replace = TRUE)
+  d_b <- mediation_sq[idx, ]
+  
+  fit_m <- lm(prec_glu_z ~ thick_z + I(thick_z^2), data = d_b)
+  fit_y <- lm(hipp_act_z ~ thick_z + prec_glu_z, data = d_b)
+  
+  a1 <- coef(fit_m)["thick_z"]
+  a2 <- coef(fit_m)["I(thick_z^2)"]
+  b  <- coef(fit_y)["prec_glu_z"]
+  
+  boot_theta_10[i, ] <- (a1 + 2 * a2 * x_grid) * b
+  boot_ade_10[i]     <- coef(fit_y)["thick_z"]}
+
+a1_hat_10 <- coef(model_m_10)["thick_z"]
+a2_hat_10 <- coef(model_m_10)["I(thick_z^2)"]
+b_hat_10  <- coef(model_y_10)["prec_glu_z"]
+
+theta_hat_10 <- (a1_hat_10 + 2 * a2_hat_10 * x_grid) * b_hat_10
+ci_95_10     <- apply(boot_theta_10, 2, quantile, probs = c(0.025, 0.975))
+p_boot_10    <- apply(boot_theta_10, 2, function(d) 2 * min(mean(d >= 0), mean(d <= 0)))
+slope_boot_10 <- boot_theta_10[, "x_1"] - boot_theta_10[, "x_0"]
+
+# Summary table for Model 10 (Hippocampal)
+rbind(
+  data.frame(
+    term    = paste0("theta_", x_grid),
+    est     = theta_hat_10,
+    ci_low  = ci_95_10[1, ],
+    ci_high = ci_95_10[2, ],
+    p_boot  = p_boot_10,
+    row.names = NULL
+  ),
+  data.frame(
+    term    = c("slope_2a2b", "ADE_c_prime"),
+    est     = c(unname(theta_hat_10[3] - theta_hat_10[2]), unname(coef(model_y_10)["thick_z"])),
+    ci_low  = c(quantile(slope_boot_10, 0.025)[[1]], quantile(boot_ade_10, 0.025)[[1]]),
+    ci_high = c(quantile(slope_boot_10, 0.975)[[1]], quantile(boot_ade_10, 0.975)[[1]]),
+    p_boot  = c(2 * min(mean(slope_boot_10 >= 0), mean(slope_boot_10 <= 0)),
+                2 * min(mean(boot_ade_10 >= 0), mean(boot_ade_10 <= 0)))))
 
 #sink() 
+
+
+
+
 
 
 
