@@ -157,6 +157,7 @@ summary(aov(csf_precuneus ~ diagnostic_nick, data = MRS_QC))
 
 
 
+################  Outlier management ########################
 
 ######################### Q-Q Plots (Residual Normality) #########################
 #pdf("QQ_Plots_Models_1_to_10.pdf", width = 10, height = 5)
@@ -219,6 +220,143 @@ cooks.distance(model_quad_prec_memor)[92]
 
 
 
+############## log10 + roblm ########################
+library(robustbase)
+set.seed(1)
+
+import_data_arsenii_20250609_hippR <- read_excel("C:/Users/okkam/Desktop/labo/article 1/import_data_arsenii_20261017.xlsx")
+MRS_outliers <- import_data_arsenii_20250609_hippR
+# Clean the column name
+MRS_outliers <- janitor::clean_names(MRS_outliers)
+names(MRS_outliers)
+# Creer Hipp mean
+MRS_outliers$hipp_mean <- (MRS_outliers$hip_l_nor_icv + MRS_outliers$righ_hip_vol)/2
+MRS_outliers$hipp_mean_act <- (MRS_outliers$activation_hippocampus_l + MRS_outliers$activation_hippocampus_r)/2
+
+# memoria_libre_correcte
+MRS_outliers$memoria_libre_correcte_c  <- scale(MRS_outliers$memoria_libre_correcte, center = TRUE, scale = FALSE)
+MRS_outliers$memoria_libre_correcte_sq <- MRS_outliers$memoria_libre_correcte_c^2
+# face_name_rappel_differe_spectro
+MRS_outliers$face_name_rappel_differe_spectro_c  <- scale(MRS_outliers$face_name_rappel_differe_spectro, center = TRUE, scale = FALSE)
+MRS_outliers$face_name_rappel_differe_spectro_sq <- MRS_outliers$face_name_rappel_differe_spectro_c^2
+# hipp_mean
+MRS_outliers$hipp_mean_c  <- scale(MRS_outliers$hipp_mean, center = TRUE, scale = FALSE)
+MRS_outliers$hipp_mean_sq <- MRS_outliers$hipp_mean_c^2
+# cortical_thickness_adsignature_dickson
+MRS_outliers$cortical_thickness_adsignature_dickson_c  <- scale(MRS_outliers$cortical_thickness_adsignature_dickson, center = TRUE, scale = FALSE)
+MRS_outliers$cortical_thickness_adsignature_dickson_sq <- MRS_outliers$cortical_thickness_adsignature_dickson_c^2
+#  activation_hipp mean
+MRS_outliers$hipp_mean_act_c  <- scale(MRS_outliers$hipp_mean_act, center = TRUE, scale = FALSE)
+MRS_outliers$hipp_mean_act_sq <- MRS_outliers$hipp_mean_act_c^2
+#  activation_parietal_sup_l 
+MRS_outliers$activation_parietal_sup_l_c  <- scale(MRS_outliers$activation_parietal_sup_l, center = TRUE, scale = FALSE)
+MRS_outliers$activation_parietal_sup_l_sq <- MRS_outliers$activation_parietal_sup_l_c^2
+## transform log 10
+MRS_outliers$m_m_acc_log10       <- log10(MRS_outliers$m_m_acc)
+MRS_outliers$m_m_precuneus_log10 <- log10(MRS_outliers$m_m_precuneus)
+# Re-center and re-square 
+MRS_outliers$m_m_acc_log10_c  <- as.numeric(scale(MRS_outliers$m_m_acc_log10, center = TRUE, scale = FALSE))
+MRS_outliers$m_m_acc_log10_sq <- MRS_outliers$m_m_acc_log10_c^2
+
+MRS_outliers$m_m_precuneus_log10_c  <- as.numeric(scale(MRS_outliers$m_m_precuneus_log10, center = TRUE, scale = FALSE))
+MRS_outliers$m_m_precuneus_log10_sq <- MRS_outliers$m_m_precuneus_log10_c^2
+
+
+#### Structure and Memory ######
+#sink("Table 2,3 linear and quadratic models log10_lmrob.txt")
+
+# Model 1: log10(m_m_ACC) ~ hipp mean
+rob_lin_acc_hipp_mean_log10  <- lmrob(m_m_acc_log10 ~ hipp_mean_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_hipp_mean_log10)
+rob_quad_acc_hipp_mean_log10 <- lmrob(m_m_acc_log10 ~ hipp_mean_c + hipp_mean_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_hipp_mean_log10)
+anova(rob_lin_acc_hipp_mean_log10, rob_quad_acc_hipp_mean_log10)
+
+# Model 2: log10(m_m_Precuneus) ~ hipp mean
+rob_lin_prec_hipp_mean_log10  <- lmrob(m_m_precuneus_log10 ~ hipp_mean_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_hipp_mean_log10)
+rob_quad_prec_hipp_mean_log10 <- lmrob(m_m_precuneus_log10 ~ hipp_mean_c + hipp_mean_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_hipp_mean_log10)
+anova(rob_lin_prec_hipp_mean_log10, rob_quad_prec_hipp_mean_log10)
+
+# Model 3: log10(m_m_ACC) ~ thickness
+rob_lin_acc_thick_log10  <- lmrob(m_m_acc_log10 ~ cortical_thickness_adsignature_dickson_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_thick_log10)
+rob_quad_acc_thick_log10 <- lmrob(m_m_acc_log10 ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_thick_log10)
+anova(rob_lin_acc_thick_log10, rob_quad_acc_thick_log10)
+
+# Model 4: log10(m_m_Precuneus) ~ thickness
+rob_lin_prec_thick_log10  <- lmrob(m_m_precuneus_log10 ~ cortical_thickness_adsignature_dickson_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_thick_log10)
+rob_quad_prec_thick_log10 <- lmrob(m_m_precuneus_log10 ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_thick_log10)
+anova(rob_lin_prec_thick_log10, rob_quad_prec_thick_log10)
+
+
+#### Activation ######
+
+# Model 5: log10(ACC) ~ activation parietal
+rob_lin_acc_sup_act_rev_log10  <- lmrob(m_m_acc_log10 ~ activation_parietal_sup_l_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_sup_act_rev_log10)
+rob_quad_acc_sup_act_rev_log10 <- lmrob(m_m_acc_log10 ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_sup_act_rev_log10)
+anova(rob_lin_acc_sup_act_rev_log10, rob_quad_acc_sup_act_rev_log10)
+
+# Model 6: log10(Precuneus) ~ activation parietal
+rob_lin_prec_sup_act_rev_log10  <- lmrob(m_m_precuneus_log10 ~ activation_parietal_sup_l_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_sup_act_rev_log10)
+rob_quad_prec_sup_act_rev_log10 <- lmrob(m_m_precuneus_log10 ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_sup_act_rev_log10)
+anova(rob_lin_prec_sup_act_rev_log10, rob_quad_prec_sup_act_rev_log10)
+
+# Model 7: log10(ACC) ~ hipp activation mean
+rob_lin_acc_hipp_act_log10  <- lmrob(m_m_acc_log10 ~ hipp_mean_act_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_hipp_act_log10)
+rob_quad_acc_hipp_act_log10 <- lmrob(m_m_acc_log10 ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_hipp_act_log10)
+anova(rob_lin_acc_hipp_act_log10, rob_quad_acc_hipp_act_log10)
+
+# Model 8: log10(Precuneus) ~ hipp activation mean
+rob_lin_prec_hipp_act_log10  <- lmrob(m_m_precuneus_log10 ~ hipp_mean_act_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_hipp_act_log10)
+rob_quad_prec_hipp_act_log10 <- lmrob(m_m_precuneus_log10 ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_hipp_act_log10)
+anova(rob_lin_prec_hipp_act_log10, rob_quad_prec_hipp_act_log10)
+
+
+##### Memory #####
+
+# Model 9: memoria ~ log10(ACC Glu)
+rob_lin_acc_memor_log10  <- lmrob(memoria_libre_correcte ~ m_m_acc_log10_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_memor_log10)
+rob_quad_acc_memor_log10 <- lmrob(memoria_libre_correcte ~ m_m_acc_log10_c + m_m_acc_log10_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_memor_log10)
+anova(rob_lin_acc_memor_log10, rob_quad_acc_memor_log10)
+
+# Model 10: memoria ~ log10(Precuneus Glu)
+rob_lin_prec_memor_log10  <- lmrob(memoria_libre_correcte ~ m_m_precuneus_log10_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_memor_log10)
+rob_quad_prec_memor_log10 <- lmrob(memoria_libre_correcte ~ m_m_precuneus_log10_c + m_m_precuneus_log10_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_memor_log10)
+anova(rob_lin_prec_memor_log10, rob_quad_prec_memor_log10)
+
+# Model 11: face-name ~ log10(ACC Glu)
+rob_lin_acc_facename_log10  <- lmrob(face_name_rappel_differe_spectro ~ m_m_acc_log10_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_acc_facename_log10)
+rob_quad_acc_facename_log10 <- lmrob(face_name_rappel_differe_spectro ~ m_m_acc_log10_c + m_m_acc_log10_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_acc_facename_log10)
+anova(rob_lin_acc_facename_log10, rob_quad_acc_facename_log10)
+
+# Model 12: face-name ~ log10(Precuneus Glu)
+rob_lin_prec_facename_log10  <- lmrob(face_name_rappel_differe_spectro ~ m_m_precuneus_log10_c, data = MRS_outliers, setting = "KS2014")
+summary(rob_lin_prec_facename_log10)
+rob_quad_prec_facename_log10 <- lmrob(face_name_rappel_differe_spectro ~ m_m_precuneus_log10_c + m_m_precuneus_log10_sq, data = MRS_outliers, setting = "KS2014")
+summary(rob_quad_prec_facename_log10)
+anova(rob_lin_prec_facename_log10, rob_quad_prec_facename_log10)
+
+
+#sink()
 
 
 
