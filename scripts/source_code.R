@@ -337,15 +337,27 @@ anova(model_lin_prec_facename, model_quad_prec_facename)
 
 names(MRS_full)
 ############## Mediation analysis ##################
+set.seed(1)
 # Select raw columns
 mediation_combined <- MRS_full[, c("m_m_precuneus", "m_m_acc", 
                                    "hipp_mean", "cortical_thickness_adsignature_dickson", 
                                    "hipp_mean_act", "activation_parietal_sup_l", "education", "diagnostic_nick",
                                    "sex", "age_spectro_c")] |> na.omit()
+
+
+# Z-score individual variables
+mediation_combined$prec_glu_z     <- as.numeric(scale(mediation_combined$m_m_precuneus))
+mediation_combined$acc_glu_z      <- as.numeric(scale(mediation_combined$m_m_acc))
+mediation_combined$hipp_vol_z     <- as.numeric(scale(mediation_combined$hipp_mean))
+mediation_combined$thick_z        <- as.numeric(scale(mediation_combined$cortical_thickness_adsignature_dickson))
+mediation_combined$hipp_act_z     <- as.numeric(scale(mediation_combined$hipp_mean_act))
+mediation_combined$parietal_act_z <- as.numeric(scale(mediation_combined$activation_parietal_sup_l))
+
 # Create composite "mean" variables
-mediation_combined$mean_structure <- rowMeans(scale(mediation_combined[, c("hipp_mean", "cortical_thickness_adsignature_dickson")]), na.rm = TRUE)
-mediation_combined$mean_activation <- rowMeans(scale(mediation_combined[, c("hipp_mean_act", "activation_parietal_sup_l")]), na.rm = TRUE)
-mediation_combined$mean_glu <- rowMeans(scale(mediation_combined[, c("m_m_precuneus", "m_m_acc")]), na.rm = TRUE)
+mediation_combined$mean_structure  <- rowMeans(mediation_combined[, c("hipp_vol_z", "thick_z")])
+mediation_combined$mean_activation <- rowMeans(mediation_combined[, c("hipp_act_z", "parietal_act_z")])
+mediation_combined$mean_glu        <- rowMeans(mediation_combined[, c("prec_glu_z", "acc_glu_z")])
+
 
 
 
