@@ -159,7 +159,7 @@ summary(aov(csf_precuneus ~ diagnostic_nick, data = MRS_QC))
 
 
 ######################### Q-Q Plots (Residual Normality) #########################
-#pdf("QQ_Plots_Models_1_to_10.pdf", width = 10, height = 5)
+pdf("QQ_Plots_Models_1_to_10.pdf", width = 10, height = 5)
 # Model 1: m_m_ACC ~ hipp mean
 par(mfrow = c(1, 2))
 plot(model_lin_acc_hipp_mean, which = 2, main = "Model 1 Linear: ACC ~ Hipp Vol")
@@ -214,7 +214,7 @@ plot(model_quad_prec_memor, which = 2, main = "Model 10 Quad: Memoria ~ Prec Glu
 max(cooks.distance(model_quad_prec_memor))
 cooks.distance(model_quad_prec_memor)[92]
 
-#dev.off()
+dev.off()
 
 
 
