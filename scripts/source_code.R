@@ -238,8 +238,8 @@ AIC(model_lin_prec_thick)
 AIC(model_quad_prec_thick)
 anova(model_lin_prec_thick, model_quad_prec_thick)
 
-
-
+#stats:::anova.lm
+#stats:::anova.lmlist
 #### Activaiton ######
 
 ## Model 5 ACC ~ activaiton parietal
@@ -282,8 +282,6 @@ summary(model_quad_prec_hipp_act)
 AIC(model_lin_prec_hipp_act)
 AIC(model_quad_prec_hipp_act)
 anova(model_lin_prec_hipp_act, model_quad_prec_hipp_act)
-
-
 
 
 ##### Memory #####

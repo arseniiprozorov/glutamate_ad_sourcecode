@@ -115,7 +115,6 @@ fisher.test(tab_act_hipp)
 
 
 
-
 ### Supplementary table 3 - quality control MRS
 
 final_dataset_used_with_QC_ACC_Precuneus <- read_excel("C:/Users/okkam/Desktop/labo/article 1/NeuroImage Clinical/MRS/analysis_supplementary/final_dataset_used_with_QC_ACC_Precuneus.xlsx")
