@@ -246,8 +246,7 @@ summary(model_lin_acc_sup_act_rev)
 model_quad_acc_sup_act_rev <- lm(m_m_acc ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq, data = MRS_full)
 summary(model_quad_acc_sup_act_rev)
 
-AIC(model_lin_acc_sup_act_rev)
-AIC(model_quad_acc_sup_act_rev)
+AIC(model_lin_acc_sup_act_rev, model_quad_acc_sup_act_rev)
 anova(model_lin_acc_sup_act_rev, model_quad_acc_sup_act_rev)
 
 ## Model 6 recuneus ~ activaiton parietal
@@ -256,8 +255,7 @@ summary(model_lin_prec_sup_act_rev)
 model_quad_prec_sup_act_rev <- lm(m_m_precuneus ~ activation_parietal_sup_l_c + activation_parietal_sup_l_sq, data = MRS_full)
 summary(model_quad_prec_sup_act_rev)
 
-AIC(model_lin_prec_sup_act_rev)
-AIC(model_quad_prec_sup_act_rev)
+AIC(model_lin_prec_sup_act_rev, model_quad_prec_sup_act_rev)
 anova(model_lin_prec_sup_act_rev, model_quad_prec_sup_act_rev)
 
 
@@ -267,8 +265,7 @@ summary(model_lin_acc_hipp_act)
 model_quad_acc_hipp_act <- lm(m_m_acc ~ hipp_mean_act_c + hipp_mean_act_sq, data = MRS_full)
 summary(model_quad_acc_hipp_act)
 
-AIC(model_lin_acc_hipp_act)
-AIC(model_quad_acc_hipp_act)
+AIC(model_lin_acc_hipp_act, model_quad_acc_hipp_act)
 anova(model_lin_acc_hipp_act, model_quad_acc_hipp_act)
 
 # Model 8 precuneus  ~ hipp activation mean
