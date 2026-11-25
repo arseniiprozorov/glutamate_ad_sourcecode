@@ -194,7 +194,10 @@ summary(anova_parietal_act)
 
 
 ######################### Polynomial analyses  ####################################
-
+#stats::lm
+#stats::lm.fit
+#stats:::anova.lmlist
+#stats:::anova.lmlist
 #### structure and memory ######
 #sink("Table 2,3 linear and quadratic models between proxies of disease severity .txt") 
 
@@ -204,8 +207,7 @@ summary(model_lin_acc_hipp_mean)
 model_quad_acc_hipp_mean <- lm(m_m_acc ~ hipp_mean_c + hipp_mean_sq, data = MRS_full)
 summary(model_quad_acc_hipp_mean)
 
-AIC(model_lin_acc_hipp_mean)
-AIC(model_quad_acc_hipp_mean)
+AIC(model_lin_acc_hipp_mean, model_quad_acc_hipp_mean)
 anova(model_lin_acc_hipp_mean, model_quad_acc_hipp_mean)
 
 # Model 2 m_m_Precuneus ~ hipp mean 
@@ -214,8 +216,7 @@ summary(model_lin_prec_hipp_mean)
 model_quad_prec_hipp_mean <- lm(m_m_precuneus ~ hipp_mean_c + hipp_mean_sq, data = MRS_full)
 summary(model_quad_prec_hipp_mean)
 
-AIC(model_lin_prec_hipp_mean)
-AIC(model_quad_prec_hipp_mean)
+AIC(model_lin_prec_hipp_mean, model_quad_prec_hipp_mean)
 anova(model_lin_prec_hipp_mean, model_quad_prec_hipp_mean)
 
 # Model 3 m_m_ACC ~ thickness
@@ -234,12 +235,9 @@ summary(model_lin_prec_thick)
 model_quad_prec_thick <- lm(m_m_precuneus ~ cortical_thickness_adsignature_dickson_c + cortical_thickness_adsignature_dickson_sq, data = MRS_full)
 summary(model_quad_prec_thick)
 
-AIC(model_lin_prec_thick)
-AIC(model_quad_prec_thick)
+AIC(model_lin_prec_thick, model_quad_prec_thick)
 anova(model_lin_prec_thick, model_quad_prec_thick)
 
-#stats:::anova.lm
-#stats:::anova.lmlist
 #### Activaiton ######
 
 ## Model 5 ACC ~ activaiton parietal
